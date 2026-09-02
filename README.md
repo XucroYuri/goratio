@@ -1,5 +1,10 @@
 # goratio
 
+[![CI](https://github.com/XucroYuri/goratio/actions/workflows/ci.yml/badge.svg)](https://github.com/XucroYuri/goratio/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/XucroYuri/goratio/actions/workflows/codeql.yml/badge.svg)](https://github.com/XucroYuri/goratio/actions/workflows/codeql.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/XucroYuri/goratio?include_prereleases)](https://github.com/XucroYuri/goratio/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/XucroYuri/goratio/blob/main/LICENSE)
+
 `goratio` 是一个可复现的金油比价历史统计与概率分析 CLI。它把黄金与 WTI 原油连续期货按共同交易日对齐，展示滚动中枢，并按冻结协议执行均值回归、结构稳定性和条件远期收益研究。
 
 项目的目标是检验假设，而不是证明某个结论。结果为零、反向、不稳定或数据不足时都会原样保留。
@@ -138,6 +143,14 @@ PYTHONPATH=src python3 -m compileall -q src tests
 ```
 
 测试覆盖固定快照复现、非法记录、错位交易日、短历史、陈旧缓存、摘要篡改、Yahoo 失败提示、时间顺序切分、无前瞻状态构造、JSON 契约和合规措辞。
+
+## 参与项目
+
+- 数据来源、接口稳定性和再分发边界见 [DATA_SOURCES.md](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/DATA_SOURCES.md)；
+- 提交代码或研究协议前请阅读 [CONTRIBUTING.md](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/CONTRIBUTING.md)；
+- 安全问题请按 [SECURITY.md](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/SECURITY.md) 私下报告；
+- 参与项目即表示同意遵守 [CODE_OF_CONDUCT.md](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/CODE_OF_CONDUCT.md)；
+- 版本变化见 [CHANGELOG.md](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/CHANGELOG.md)，学术引用元数据见 [CITATION.cff](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/CITATION.cff)。
 
 ## 局限
 
