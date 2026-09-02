@@ -57,6 +57,31 @@ def render_dashboard_html(payload: Mapping) -> str:
     if not evidence_rows:
         evidence_rows.append("<tr><td>-</td><td>未运行</td></tr>")
 
+    series = payload.get("series", [])
+    chart_html = ""
+    if len(series) >= 2:
+        values = [
+            float(point.get("ratio"))
+            for point in series
+            if point.get("ratio") is not None
+        ]
+        if len(values) >= 2:
+            min_v = min(values)
+            max_v = max(values)
+            span = max(max_v - min_v, 1e-12)
+            width = 640
+            height = 160
+            points = []
+            for idx, value in enumerate(values):
+                x = width * idx / (len(values) - 1)
+                y = height - 8 - (height - 16) * (value - min_v) / span
+                points.append(f"{x:.1f},{y:.1f}")
+            chart_html = (
+                "<h2>近期金油比</h2>"
+                f"<svg viewBox=\"0 0 {width} {height}\" width=\"100%\" height=\"180\" role=\"img\" aria-label=\"金油比走势\">"
+                f"<polyline fill=\"none\" stroke=\"#1a73e8\" stroke-width=\"1.5\" points=\"{' '.join(points)}\"/></svg>"
+            )
+
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -77,6 +102,7 @@ td, th {{ border: 1px solid #ccc; padding: 6px 8px; text-align: left; }}
 <tr><th>当前比值</th><td>{e(str(ratio.get('ratio', '未知')))}</td></tr>
 {''.join(rows)}
 </table>
+{chart_html}
 <h2>v2 组合证据门槛</h2>
 <table><tr><th>期限</th><th>状态</th></tr>{''.join(evidence_rows)}</table>
 <h2>风险标记</h2>
