@@ -121,5 +121,151 @@ class CLITests(unittest.TestCase):
         self.assertEqual(cached.provenance, "user_csv")
 
 
+    def test_plugin_list_json_lists_whitelist_without_loader(self) -> None:
+        output = io.StringIO()
+        exit_code = main(
+            ["plugin", "list", "--json"],
+            stdout=output,
+            stderr=io.StringIO(),
+        )
+        payload = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["api_version"], "goratio-plugin-v1")
+        self.assertGreater(payload["count"], 0)
+        for plugin in payload["plugins"]:
+            self.assertIn("plugin_id", plugin)
+            self.assertIn("read_only", plugin)
+
+    def test_skill_render_contains_read_only_and_china_guidance(self) -> None:
+        output = io.StringIO()
+        exit_code = main(
+            ["skill", "render"],
+            stdout=output,
+            stderr=io.StringIO(),
+        )
+        rendered = output.getvalue()
+        self.assertEqual(exit_code, 0)
+        self.assertIn("只读研究代理", rendered)
+        self.assertIn("中国大陆用户", rendered)
+        self.assertIn("不构成投资建议", rendered)
+
+    def test_episode_command_returns_diagnostic_even_on_short_history(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = io.StringIO()
+            exit_code = main(
+                ["episode", "--source", "cn_public", "--period", "5y", "--json"],
+                loader=self.make_loader(Path(directory)),
+                today=lambda: date(2024, 1, 4),
+                stdout=output,
+                stderr=io.StringIO(),
+            )
+
+        payload = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["schema_version"], "goratio-episode-v1")
+        self.assertEqual(payload["episode_study"]["episode_count"], 0)
+        self.assertEqual(payload["episode_study"]["daily_low_state_event_count"], 0)
+
+    def test_tradability_command_reports_missing_execution_data(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = io.StringIO()
+            exit_code = main(
+                ["tradability", "--source", "cn_public", "--period", "5y", "--json"],
+                loader=self.make_loader(Path(directory)),
+                today=lambda: date(2024, 1, 4),
+                stdout=output,
+                stderr=io.StringIO(),
+            )
+
+        payload = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["schema_version"], "goratio-tradability-v1")
+        self.assertEqual(payload["contracts"]["gold"]["contract_multiplier"], 100)
+        self.assertEqual(payload["contracts"]["oil"]["contract_multiplier"], 1000)
+        self.assertIn("no_roll_calendar", payload["risk_flags"])
+        self.assertIn("不构成投资建议", payload["disclaimer"])
+
+    def test_factor_status_returns_v2_spec_and_unavailable_on_short_history(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = io.StringIO()
+            exit_code = main(
+                ["factor", "status", "--source", "cn_public", "--period", "5y", "--json"],
+                loader=self.make_loader(Path(directory)),
+                today=lambda: date(2024, 1, 4),
+                stdout=output,
+                stderr=io.StringIO(),
+            )
+
+        payload = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["schema_version"], "goratio-factor-v1")
+        self.assertEqual(payload["protocol"]["id"], "goratio-2a-v1")
+        self.assertFalse(payload["snapshot"]["available"])
+        self.assertEqual(payload["snapshot"]["reason"], "insufficient_history_for_252d_trend")
+
+    def test_backtest_command_returns_empty_diagnostic_on_short_history(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = io.StringIO()
+            exit_code = main(
+                ["backtest", "--source", "cn_public", "--period", "5y", "--json"],
+                loader=self.make_loader(Path(directory)),
+                today=lambda: date(2024, 1, 4),
+                stdout=output,
+                stderr=io.StringIO(),
+            )
+
+        payload = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["trade_count"], 0)
+        self.assertIn("insufficient_trade_count", payload["risk_flags"])
+        self.assertIn("不构成投资建议", payload["disclaimer"])
+
+    def test_episode_study_command_returns_three_horizons(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = io.StringIO()
+            exit_code = main(
+                ["episode-study", "--source", "cn_public", "--period", "5y", "--json"],
+                loader=self.make_loader(Path(directory)),
+                today=lambda: date(2024, 1, 4),
+                stdout=output,
+                stderr=io.StringIO(),
+            )
+
+        payload = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(set(payload["horizons"]), {"63", "126", "252"})
+        self.assertTrue(
+            all(
+                value["evidence_status"] == "insufficient_data"
+                for value in payload["horizons"].values()
+            )
+        )
+
+    def test_contracts_inspect_reads_csv_and_detects_roll(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            csv_path = Path(directory) / "contracts.csv"
+            csv_path.write_text(
+                "date,instrument,symbol,contract_month,close,volume,open_interest\n"
+                "2024-01-02,gold,GC,2024-02,2000,100,50\n"
+                "2024-01-03,gold,GC,2024-02,2010,80,40\n"
+                "2024-01-03,gold,GC,2024-04,2020,200,300\n",
+                encoding="utf-8",
+            )
+            output = io.StringIO()
+            exit_code = main(
+                ["contracts", "inspect", "--csv", str(csv_path), "--json"],
+                stdout=output,
+                stderr=io.StringIO(),
+            )
+
+        payload = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["record_count"], 3)
+        self.assertEqual(payload["roll_event_count"], 1)
+        self.assertEqual(
+            payload["roll_events"][0]["new_contract"], "2024-04"
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
