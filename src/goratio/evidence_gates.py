@@ -30,6 +30,7 @@ def run_v2_horizon_gate(
     *,
     horizon: int,
     cost_bps: float = DEFAULT_COST_BPS,
+    roll_cost_bps: float = 0.0,
 ) -> dict:
     """对单个 horizon 运行 v2 组合门槛。"""
     study = run_episode_evidence_study(data, horizon=horizon)
@@ -39,6 +40,7 @@ def run_v2_horizon_gate(
         round_trip_cost_bps=cost_bps,
         trend_confirmation=True,
         t1_close_execution=True,
+        roll_cost_bps=roll_cost_bps,
     )
     oos_count = study["out_of_sample"]["conditional_episodes"]["sample_count"]
     oos_mean = study["out_of_sample"]["conditional_episodes"]["mean"]
@@ -75,6 +77,7 @@ def run_v2_horizon_gate(
                 familywise_interval and familywise_interval[0] > 0
             ),
             "cost_bps": cost_bps,
+            "roll_cost_bps": roll_cost_bps,
             "out_of_sample_mean_net_return": cost_adjusted_oos_mean,
             "cost_adjusted_positive_passed": bool(
                 cost_adjusted_oos_mean is not None and cost_adjusted_oos_mean > 0
@@ -92,6 +95,7 @@ def run_v2_evidence_bundle(
     data: PreparedMarketData,
     *,
     cost_bps: float = DEFAULT_COST_BPS,
+    roll_cost_bps: float = 0.0,
 ) -> dict:
     """对 63/126/252 三个期限运行 v2 组合门槛。"""
     return {
@@ -101,6 +105,7 @@ def run_v2_evidence_bundle(
                 data,
                 horizon=horizon,
                 cost_bps=cost_bps,
+                roll_cost_bps=roll_cost_bps,
             )
             for horizon in (63, 126, 252)
         },

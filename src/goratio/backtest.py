@@ -89,11 +89,13 @@ def run_episode_cost_backtest(
     round_trip_cost_bps: float = 20.0,
     trend_confirmation: bool = True,
     t1_close_execution: bool = False,
+    roll_cost_bps: float = 0.0,
 ) -> dict:
     """对低分位 episode 做成本后交易级回测诊断。
 
     t1_close_execution=True 时，信号日之后一个共同交易日的收盘价作为成交价；
     该实现只使用现有收盘序列，不等同于 T+1 open/settle 真实执行。
+    roll_cost_bps 用于把换月价差成本作为每笔 episode 的附加成本简单计入。
     """
     history = data.history.points
     episodes = build_forward_episodes(
@@ -114,7 +116,9 @@ def run_episode_cost_backtest(
                 continue
         else:
             gross_return = episode.forward_return
-        net_return = gross_return - round_trip_cost_bps / 10000.0
+        net_return = gross_return - (
+            round_trip_cost_bps + roll_cost_bps
+        ) / 10000.0
         trades.append(
             {
                 "entry_date": episode.date.isoformat(),
@@ -146,6 +150,7 @@ def run_episode_cost_backtest(
         "round_trip_cost_bps": round_trip_cost_bps,
         "trend_confirmation": trend_confirmation,
         "t1_close_execution": t1_close_execution,
+        "roll_cost_bps": roll_cost_bps,
         "trade_count": len(trades),
         "risk_gates": {
             "minimum_trade_count": MIN_TRADE_COUNT,

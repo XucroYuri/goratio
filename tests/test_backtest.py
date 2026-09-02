@@ -99,5 +99,19 @@ class EpisodeCostBacktestTests(unittest.TestCase):
         )
 
 
+    def test_roll_cost_bps_is_included_in_net_return(self) -> None:
+        data = _prepared()
+
+        report = run_episode_cost_backtest(
+            data,
+            horizon=10,
+            round_trip_cost_bps=20.0,
+            roll_cost_bps=10.0,
+        )
+
+        self.assertEqual(report["roll_cost_bps"], 10.0)
+        self.assertIsNotNone(report["metrics"]["mean_net_return"])
+
+
 if __name__ == "__main__":
     unittest.main()

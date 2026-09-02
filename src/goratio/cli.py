@@ -146,6 +146,12 @@ def build_parser() -> argparse.ArgumentParser:
         dest="t1_close",
         help="使用信号后一个共同交易日收盘价作为执行价（T+1 close 近似）",
     )
+    backtest.add_argument(
+        "--roll-cost-bps",
+        type=float,
+        default=0.0,
+        help="每笔 episode 附加的换月价差成本（基点）",
+    )
 
     evidence = commands.add_parser("evidence", help="运行双因子 v2 成本后 episode 组合证据门槛")
     evidence.add_argument("--period", choices=("3y", "5y", "10y"), default="10y")
@@ -157,6 +163,7 @@ def build_parser() -> argparse.ArgumentParser:
     evidence.add_argument("--json", action="store_true", dest="as_json")
     evidence.add_argument("--timeout", type=float, default=10.0)
     evidence.add_argument("--cost-bps", type=float, default=20.0)
+    evidence.add_argument("--roll-cost-bps", type=float, default=0.0)
 
     web = commands.add_parser("web", help="只读 Web 工作台（本地 HTML 导出）")
     web_subcommands = web.add_subparsers(dest="web_command", required=True)
@@ -549,6 +556,7 @@ def main(
                 horizon=args.horizon,
                 round_trip_cost_bps=args.cost_bps,
                 t1_close_execution=getattr(args, "t1_close", False),
+                roll_cost_bps=getattr(args, "roll_cost_bps", 0.0),
             )
             if args.as_json:
                 stdout.write(
@@ -628,6 +636,7 @@ def main(
             report = run_v2_evidence_bundle(
                 prepared,
                 cost_bps=args.cost_bps,
+                roll_cost_bps=getattr(args, "roll_cost_bps", 0.0),
             )
             if args.as_json:
                 stdout.write(
