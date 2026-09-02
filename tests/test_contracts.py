@@ -178,5 +178,44 @@ class RollAdjustedSeriesTests(unittest.TestCase):
         self.assertAlmostEqual(summary["mean_abs_roll_gap_bps"], (2020 / 2010 - 1) * 10000)
 
 
+    def test_roll_aware_contract_return_includes_roll(self) -> None:
+        from goratio.contracts import roll_aware_contract_return
+
+        records = [
+            ContractRecord(
+                date=date(2024, 1, 2), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2000.0,
+                volume=100, open_interest=50,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 3), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2010.0,
+                volume=80, open_interest=40,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 3), instrument="gold", symbol="GC",
+                contract_month="2024-04", close=2020.0,
+                volume=200, open_interest=300,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 4), instrument="gold", symbol="GC",
+                contract_month="2024-04", close=2030.0,
+                volume=250, open_interest=400,
+            ),
+        ]
+
+        ret = roll_aware_contract_return(
+            records,
+            instrument="gold",
+            entry_date=date(2024, 1, 2),
+            exit_date=date(2024, 1, 4),
+        )
+
+        self.assertAlmostEqual(
+            ret,
+            (2010 / 2000) * (2030 / 2020) - 1,
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
