@@ -283,5 +283,28 @@ class CLITests(unittest.TestCase):
         self.assertEqual(payload["events"], [])
 
 
+    def test_evidence_command_returns_three_horizons(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = io.StringIO()
+            exit_code = main(
+                ["evidence", "--source", "cn_public", "--period", "5y", "--json"],
+                loader=self.make_loader(Path(directory)),
+                today=lambda: date(2024, 1, 4),
+                stdout=output,
+                stderr=io.StringIO(),
+            )
+
+        payload = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["protocol"], "goratio-2a-v1")
+        self.assertEqual(set(payload["horizons"]), {"63", "126", "252"})
+        self.assertTrue(
+            all(
+                value["evidence_status"] == "insufficient_data"
+                for value in payload["horizons"].values()
+            )
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -39,7 +39,8 @@
 - [ ] 负油价/危机尾部事件进一步接入真实回测压力场景与 protocol v2。
 - [x] 人民币披露层支持可选 `--usdcny` 换算（未自动接入数据源，仍需调用方提供汇率）。
 - [x] `evidence_gates`：协议 v2 组合门槛已落地（episode OOS、98.33% 家族区间、成本后正收益、回撤门控）。
-- [ ] 将 `evidence_gates` 接入 CLI 并完成正式冻结验收流程。
+- [x] `evidence` CLI 已接入 `evidence_gates`。
+- [ ] 完成正式冻结验收流程。
 - [ ] 双因子 v2 的 episode 级正式样本外成本后检验报告。
 - [ ] 从诊断回测升级为真实合约级回测：换月、保证金、市场冲击、T+1 open/settle。
 - [ ] 正式预注册成本后回测门槛与家族检验（已具备模块入口）。
@@ -49,4 +50,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：83 tests OK。
+当前通过：84 tests OK。

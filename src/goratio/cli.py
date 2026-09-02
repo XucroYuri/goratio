@@ -20,6 +20,7 @@ from .cache import (
 from .contracts import build_contract_series, read_contract_csv
 from .dataset import DataQualityError, prepare_market_data
 from .episode_study import run_episode_evidence_bundle
+from .evidence_gates import run_v2_evidence_bundle
 from .episodes import (
     build_forward_episodes,
     chronological_split_date,
@@ -143,6 +144,17 @@ def build_parser() -> argparse.ArgumentParser:
         dest="t1_close",
         help="使用信号后一个共同交易日收盘价作为执行价（T+1 close 近似）",
     )
+
+    evidence = commands.add_parser("evidence", help="运行双因子 v2 成本后 episode 组合证据门槛")
+    evidence.add_argument("--period", choices=("3y", "5y", "10y"), default="10y")
+    evidence.add_argument(
+        "--source",
+        choices=("cn_public", "yahoo_futures"),
+        default="cn_public",
+    )
+    evidence.add_argument("--json", action="store_true", dest="as_json")
+    evidence.add_argument("--timeout", type=float, default=10.0)
+    evidence.add_argument("--cost-bps", type=float, default=20.0)
 
     factor = commands.add_parser("factor", help="查看预注册双因子 v2 当前研究状态")
     factor_subcommands = factor.add_subparsers(dest="factor_command", required=True)
@@ -560,6 +572,32 @@ def main(
                     stdout.write(
                         f"  {event['date']} {event['symbol']} close={event['close']} "
                         f"in_window={event['in_analysis_window']}\n"
+                    )
+            return 0
+        if args.command == "evidence":
+            report = run_v2_evidence_bundle(
+                prepared,
+                cost_bps=args.cost_bps,
+            )
+            if args.as_json:
+                stdout.write(
+                    json.dumps(
+                        report,
+                        ensure_ascii=False,
+                        indent=2,
+                        sort_keys=True,
+                        allow_nan=False,
+                    )
+                    + "\n"
+                )
+            else:
+                stdout.write(
+                    f"协议：{report['protocol']}；成本后 episode 组合门槛\n"
+                )
+                for horizon, result in report["horizons"].items():
+                    stdout.write(
+                        f"  {horizon} 交易日：{result['evidence_status']}；"
+                        f"OOS {result['gates']['out_of_sample_episode_count']} 个\n"
                     )
             return 0
         if args.command == "episode":
