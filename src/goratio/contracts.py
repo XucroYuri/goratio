@@ -380,3 +380,46 @@ def roll_aware_contract_return(
     final_price = events[-1]["close"]
     cumulative *= final_price / entry_price
     return cumulative - 1.0
+
+
+def contract_episode_return_summary(records, episodes) -> dict:
+    """在真实合约链上验证一组 episode 的换月收益差异。
+
+    episodes 可以是任何包含 date/outcome_date/forward_return 的序列；
+    本函数对每个 episode 用 roll_aware_contract_return 计算 gold 的实际换月收益，
+    并与连续序列 forward_return 对比。
+    """
+    rows = []
+    for episode in episodes:
+        roll_return = roll_aware_contract_return(
+            records,
+            instrument="gold",
+            entry_date=episode.date,
+            exit_date=episode.outcome_date,
+        )
+        rows.append(
+            {
+                "entry_date": episode.date.isoformat(),
+                "outcome_date": episode.outcome_date.isoformat(),
+                "continuous_forward_return": episode.forward_return,
+                "roll_aware_return": roll_return,
+                "difference": (
+                    None
+                    if roll_return is None
+                    else episode.forward_return - roll_return
+                ),
+            }
+        )
+    valid = [
+        row["difference"]
+        for row in rows
+        if row["difference"] is not None
+    ]
+    return {
+        "episode_count": len(rows),
+        "valid_roll_aware_count": len(valid),
+        "mean_absolute_difference": (
+            sum(abs(value) for value in valid) / len(valid) if valid else None
+        ),
+        "rows": rows,
+    }

@@ -217,5 +217,51 @@ class RollAdjustedSeriesTests(unittest.TestCase):
         )
 
 
+    def test_contract_episode_return_summary_uses_roll_aware_return(self) -> None:
+        from goratio.contracts import contract_episode_return_summary
+        from goratio.episodes import Episode
+
+        records = [
+            ContractRecord(
+                date=date(2024, 1, 2), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2000.0,
+                volume=100, open_interest=50,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 3), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2010.0,
+                volume=80, open_interest=40,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 3), instrument="gold", symbol="GC",
+                contract_month="2024-04", close=2020.0,
+                volume=200, open_interest=300,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 4), instrument="gold", symbol="GC",
+                contract_month="2024-04", close=2030.0,
+                volume=250, open_interest=400,
+            ),
+        ]
+        episode = Episode(
+            date=date(2024, 1, 2),
+            outcome_date=date(2024, 1, 4),
+            forward_return=2030.0 / 2020.0 - 1,
+            percentile=0.1,
+            history_count=300,
+            low_state_days=3,
+        )
+
+        summary = contract_episode_return_summary(records, [episode])
+
+        self.assertEqual(summary["episode_count"], 1)
+        self.assertEqual(summary["valid_roll_aware_count"], 1)
+        self.assertAlmostEqual(
+            summary["rows"][0]["roll_aware_return"],
+            (2010 / 2000) * (2030 / 2020) - 1,
+        )
+        self.assertIsNotNone(summary["mean_absolute_difference"])
+
+
 if __name__ == "__main__":
     unittest.main()
