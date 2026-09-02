@@ -332,3 +332,51 @@ def summarize_roll_costs(records: Sequence[ContractRecord]) -> dict:
         ),
         "note": "换月 gap 是实际滚动时可能产生的价差成本之一，不等同于完整交易成本",
     }
+
+
+def roll_aware_contract_return(
+    records: Sequence[ContractRecord],
+    *,
+    instrument: str,
+    entry_date: date,
+    exit_date: date,
+) -> Optional[float]:
+    """计算真实主力合约链上的持有期收益（含换月）。
+
+    与 roll-adjusted 连续序列不同，本函数显式模拟：换月时按旧合约价格结算，
+    再按新合约价格重新开仓。返回值为无交易成本的合约链收益率。
+    """
+    report = build_contract_series(records)
+    if instrument not in report["series"]:
+        return None
+    calendar = report["series"][instrument]["calendar"]
+    events = [
+        point
+        for point in calendar
+        if entry_date <= date.fromisoformat(point["date"]) <= exit_date
+    ]
+    if len(events) < 2:
+        return None
+    roll_events = {
+        (event["date"], event["instrument"]): event
+        for event in report["roll_events"]
+    }
+    active_contract = events[0]["contract_month"]
+    entry_price = events[0]["close"]
+    cumulative = 1.0
+    for point in events[1:]:
+        current_date = point["date"]
+        if point["contract_month"] == active_contract:
+            continue
+        roll = roll_events.get((current_date, instrument))
+        old_close = roll["old_close"] if roll is not None else None
+        if old_close is None or old_close == 0:
+            # 无法同日确认旧合约价格时，使用前一交易日收盘价作为近似。
+            previous_index = calendar.index(point) - 1
+            old_close = calendar[previous_index]["close"]
+        cumulative *= old_close / entry_price
+        active_contract = point["contract_month"]
+        entry_price = point["close"]
+    final_price = events[-1]["close"]
+    cumulative *= final_price / entry_price
+    return cumulative - 1.0
