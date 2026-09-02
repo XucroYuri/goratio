@@ -115,5 +115,23 @@ class PositionPnlTests(unittest.TestCase):
         self.assertGreater(sim["mean_pnl_estimate"], 0)
 
 
+    def test_batch_equity_summary(self) -> None:
+        from goratio.margin import batch_equity_summary
+
+        sim = {
+            "rows": [
+                {"pnl_estimate": 500.0},
+                {"pnl_estimate": -200.0},
+                {"pnl_estimate": 300.0},
+            ]
+        }
+
+        summary = batch_equity_summary(sim, initial_capital=10000.0)
+
+        self.assertEqual(summary["final_equity"], 10600.0)
+        self.assertEqual(summary["total_pnl"], 600.0)
+        self.assertEqual(summary["valid_pnl_count"], 3)
+
+
 if __name__ == "__main__":
     unittest.main()
