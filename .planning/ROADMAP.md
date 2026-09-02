@@ -39,6 +39,7 @@
 - [x] T+1 close 执行近似已加入 `backtest --t1-close`（仍非 open/settle，真实缺口待合约数据接入）。
 - [x] `summarize_roll_costs()` 已提供合约级可量化换月 gap 成本统计。
 - [x] 真实换月 gap 成本可作为 `--roll-cost-bps` 附加到 `backtest`/`evidence`。
+- [x] 合约级模型已支持可选 `open`/`settle` 字段。
 - [ ] T+1 open/settle 执行缺口与自动换月成本模型。
 - [x] `stress` 命令可诊断负油价/零价事件是否落入研究窗口并标注 v2 处理要求。
 - [ ] 负油价/危机尾部事件进一步接入真实回测压力场景与 protocol v2。
