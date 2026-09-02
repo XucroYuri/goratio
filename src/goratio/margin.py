@@ -115,3 +115,52 @@ def position_pnl_estimate(
         "pnl_estimate": pnl,
         "note": "研究性持仓估算，不构成交易建议",
     }
+
+
+def run_position_simulation(
+    records,
+    episodes,
+    *,
+    instrument: str = "gold",
+    direction: int = 1,
+    lots: int = 1,
+    margin_rate: Optional[float] = None,
+) -> dict:
+    """对一组 episode 批量运行真实主力链持仓估算。"""
+    rows = []
+    for episode in episodes:
+        try:
+            result = position_pnl_estimate(
+                records,
+                instrument=instrument,
+                entry_date=episode.date,
+                exit_date=episode.outcome_date,
+                direction=direction,
+                lots=lots,
+                margin_rate=margin_rate,
+            )
+        except ValueError:
+            continue
+        rows.append(
+            {
+                "entry_date": episode.date.isoformat(),
+                "outcome_date": episode.outcome_date.isoformat(),
+                "roll_aware_return": result["roll_aware_return"],
+                "pnl_estimate": result["pnl_estimate"],
+                "margin_estimate": result["margin_estimate"],
+            }
+        )
+    pnls = [
+        row["pnl_estimate"]
+        for row in rows
+        if row["pnl_estimate"] is not None
+    ]
+    return {
+        "instrument": instrument,
+        "direction": direction,
+        "lots": lots,
+        "episode_count": len(rows),
+        "valid_pnl_count": len(pnls),
+        "mean_pnl_estimate": sum(pnls) / len(pnls) if pnls else None,
+        "rows": rows,
+    }
