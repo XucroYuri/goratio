@@ -34,7 +34,8 @@
 - [x] 合约 CSV 可 `roll_adjusted=True` 桥接为 RawMarketData，供跨换月收益序列进入研究管线。
 - [x] `contracts backtest` 可将合约级 CSV 桥接后直接运行 episode 成本回测。
 - [x] `roll_aware_contract_return()` 已提供显式换月结算/重开仓的合约链收益验证入口。
-- [ ] 在完整持仓/换月引擎中批量验证。
+- [x] `contract_episode_return_summary()` 可对 episode 批量对比连续收益与真实换月收益。
+- [ ] 在完整持仓/换月引擎中接入持仓/资金/保证金。
 - [x] T+1 close 执行近似已加入 `backtest --t1-close`（仍非 open/settle，真实缺口待合约数据接入）。
 - [x] `summarize_roll_costs()` 已提供合约级可量化换月 gap 成本统计。
 - [x] 真实换月 gap 成本可作为 `--roll-cost-bps` 附加到 `backtest`/`evidence`。
@@ -56,4 +57,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：91 tests OK。
+当前通过：92 tests OK。
