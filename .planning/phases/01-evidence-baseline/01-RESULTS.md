@@ -1,8 +1,8 @@
 # 第一阶段 1A 实证结果
 
-报告状态：公开基线  
-协议版本：`goratio-1a-v1`  
-运行时间：2026-09-02 16:27（Asia/Shanghai）  
+报告状态：公开基线<br>
+协议版本：`goratio-1a-v1`<br>
+运行时间：2026-09-02 16:27（Asia/Shanghai）<br>
 命令：`goratio analyze --source cn_public --period 10y --json`
 
 ## 结论摘要
