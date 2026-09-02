@@ -267,5 +267,33 @@ class RollAdjustedSeriesTests(unittest.TestCase):
         self.assertIsNotNone(summary["mean_absolute_difference"])
 
 
+    def test_t1_open_settle_gap_uses_optional_fields(self) -> None:
+        from goratio.contracts import t1_open_settle_gap
+
+        records = [
+            ContractRecord(
+                date=date(2024, 1, 2), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2000.0,
+                open=2010.0, settle=2005.0,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 3), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2020.0,
+                open=2025.0, settle=2018.0,
+            ),
+        ]
+
+        gap = t1_open_settle_gap(
+            records,
+            instrument="gold",
+            signal_date=date(2024, 1, 2),
+        )
+
+        self.assertIsNotNone(gap)
+        self.assertEqual(gap["next_date"], "2024-01-03")
+        self.assertAlmostEqual(gap["open_gap"], 2025.0 / 2000.0 - 1)
+        self.assertAlmostEqual(gap["settle_gap"], 2018.0 / 2000.0 - 1)
+
+
 if __name__ == "__main__":
     unittest.main()
