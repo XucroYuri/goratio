@@ -1,0 +1,49 @@
+name: 数据来源问题
+description: 报告接口、符号、价格口径、许可或历史修订问题。
+title: "[数据] "
+body:
+  - type: dropdown
+    id: source
+    attributes:
+      label: 来源
+      options:
+        - cn_public
+        - yahoo_futures
+        - user_csv
+        - 新来源提案
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: 问题类型
+      options:
+        - 接口不可用或格式变化
+        - 符号或合约口径
+        - 交易日或时区对齐
+        - 历史修订或数据质量
+        - 使用条款或再分发许可
+        - 新来源可行性
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 证据与时间
+      description: 提供发生时间、公开文档链接和脱敏响应特征，不要粘贴大段价格历史。
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: 对结果的影响
+      description: 说明覆盖、质量审计、比值或复现状态如何受影响。
+    validations:
+      required: true
+  - type: checkboxes
+    id: rights
+    attributes:
+      label: 数据边界确认
+      options:
+        - label: 我没有附加无权公开或再分发的第三方原始数据。
+          required: true

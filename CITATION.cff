@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: 如果本工具对你的研究有帮助，请引用本软件版本。
+title: goratio：金油比价历史统计与概率分析工具
+type: software
+authors:
+  - name: XucroYuri
+    website: https://github.com/XucroYuri
+repository-code: https://github.com/XucroYuri/goratio
+url: https://github.com/XucroYuri/goratio
+version: 0.1.0-rc1
+date-released: 2026-09-02
+license: MIT
+keywords:
+  - gold-oil ratio
+  - time series
+  - reproducible research
+  - command-line interface
+abstract: 可复现的金油比价历史统计、数据质量审计与预注册证据检验命令行工具。
