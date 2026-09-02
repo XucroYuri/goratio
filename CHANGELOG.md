@@ -26,7 +26,8 @@
 - `contract_csv_to_raw_market_data(..., roll_adjusted=True)`：直接生成换月无跳空调整的 RawMarketData；
 - `stress` 命令：负油价/零价危机尾部事件接入状态诊断；
 - `evidence_gates`：协议 v2 成本后 episode 级组合证据门槛；
-- `evidence` CLI 命令：直接运行双因子 v2 成本后组合门槛。
+- `evidence` CLI 命令：直接运行双因子 v2 成本后组合门槛；
+- `summarize_roll_costs()`：合约级换月 gap 成本统计。
 
 ## [0.1.0-rc1] - 2026-09-02
 

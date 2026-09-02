@@ -9,6 +9,7 @@ import csv
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
+from statistics import median
 from pathlib import Path
 from typing import Iterable, Mapping, Optional, Sequence, Tuple
 
@@ -290,4 +291,44 @@ def build_roll_adjusted_series(
         "series": adjusted_series,
         "roll_events": report["roll_events"],
         "note": "roll-adjusted 绝对价格不可用于真实比值水平，仅用于跨换月的连续收益计算",
+    }
+
+
+def summarize_roll_costs(records: Sequence[ContractRecord]) -> dict:
+    """汇总主力合约换月价差成本统计。
+
+    只统计换月当天新旧合约同时存在时的可计算 gap；未提供同日双合约价格的换月
+    事件无法量化，会单独计数。
+    """
+    report = build_contract_series(records)
+    measurable_gaps = [
+        event["roll_gap_bps"]
+        for event in report["roll_events"]
+        if event["roll_gap_bps"] is not None
+    ]
+    unknown_count = sum(
+        1
+        for event in report["roll_events"]
+        if event["roll_gap_bps"] is None
+    )
+    return {
+        "roll_event_count": len(report["roll_events"]),
+        "measurable_roll_gap_count": len(measurable_gaps),
+        "unknown_roll_gap_count": unknown_count,
+        "mean_abs_roll_gap_bps": (
+            sum(abs(value) for value in measurable_gaps) / len(measurable_gaps)
+            if measurable_gaps
+            else None
+        ),
+        "median_abs_roll_gap_bps": (
+            median(abs(value) for value in measurable_gaps)
+            if measurable_gaps
+            else None
+        ),
+        "max_abs_roll_gap_bps": (
+            max(abs(value) for value in measurable_gaps)
+            if measurable_gaps
+            else None
+        ),
+        "note": "换月 gap 是实际滚动时可能产生的价差成本之一，不等同于完整交易成本",
     }

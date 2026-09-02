@@ -34,7 +34,8 @@
 - [x] 合约 CSV 可 `roll_adjusted=True` 桥接为 RawMarketData，供跨换月收益序列进入研究管线。
 - [ ] 将合约级主力链自动用于 `backtest` 的真实换月收益计算。
 - [x] T+1 close 执行近似已加入 `backtest --t1-close`（仍非 open/settle，真实缺口待合约数据接入）。
-- [ ] 真实换月成本与 T+1 open/settle 执行缺口。
+- [x] `summarize_roll_costs()` 已提供合约级可量化换月 gap 成本统计。
+- [ ] 真实换月成本接入回测成本模型与 T+1 open/settle 执行缺口。
 - [x] `stress` 命令可诊断负油价/零价事件是否落入研究窗口并标注 v2 处理要求。
 - [ ] 负油价/危机尾部事件进一步接入真实回测压力场景与 protocol v2。
 - [x] 人民币披露层支持可选 `--usdcny` 换算（未自动接入数据源，仍需调用方提供汇率）。
@@ -50,4 +51,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：84 tests OK。
+当前通过：85 tests OK。

@@ -150,5 +150,33 @@ class RollAdjustedSeriesTests(unittest.TestCase):
         self.assertEqual(raw.source.source_id, "contract_csv_roll_adjusted")
         self.assertIn("换月无跳空", raw.source.price_basis)
 
+    def test_summarize_roll_costs_reports_gap_statistics(self) -> None:
+        from goratio.contracts import summarize_roll_costs
+
+        records = [
+            ContractRecord(
+                date=date(2024, 1, 2), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2000.0,
+                volume=100, open_interest=50,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 3), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2010.0,
+                volume=80, open_interest=40,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 3), instrument="gold", symbol="GC",
+                contract_month="2024-04", close=2020.0,
+                volume=200, open_interest=300,
+            ),
+        ]
+
+        summary = summarize_roll_costs(records)
+
+        self.assertEqual(summary["roll_event_count"], 1)
+        self.assertEqual(summary["measurable_roll_gap_count"], 1)
+        self.assertAlmostEqual(summary["mean_abs_roll_gap_bps"], (2020 / 2010 - 1) * 10000)
+
+
 if __name__ == "__main__":
     unittest.main()
