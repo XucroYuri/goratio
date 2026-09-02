@@ -10,6 +10,9 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 
+MAX_RESPONSE_BYTES = 10 * 1024 * 1024
+
+
 class ProviderError(RuntimeError):
     """价格来源不可用或响应无效。"""
 
@@ -31,7 +34,15 @@ class UrllibHTTPClient:
         )
         try:
             with urlopen(request, timeout=timeout) as response:
-                return response.read().decode("utf-8")
+                payload = response.read(MAX_RESPONSE_BYTES + 1)
+                if len(payload) > MAX_RESPONSE_BYTES:
+                    raise HTTPClientError(
+                        f"响应超过 {MAX_RESPONSE_BYTES} 字节上限"
+                    )
+                try:
+                    return payload.decode("utf-8")
+                except UnicodeDecodeError as exc:
+                    raise HTTPClientError("响应不是有效的 UTF-8 文本") from exc
         except HTTPError as exc:
             raise HTTPClientError(f"HTTP {exc.code}") from exc
         except (URLError, TimeoutError, OSError) as exc:
