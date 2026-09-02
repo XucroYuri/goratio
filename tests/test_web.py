@@ -10,6 +10,10 @@ class WebTests(unittest.TestCase):
                 "source_id": "cn_public",
                 "as_of": "2024-01-02",
                 "ratio": {"as_of": "2024-01-02", "ratio": 23.75},
+                "series": [
+                    {"date": "2024-01-02", "ratio": 23.0},
+                    {"date": "2024-01-03", "ratio": 23.75},
+                ],
                 "factor": {
                     "available": True,
                     "factors": {
@@ -28,6 +32,8 @@ class WebTests(unittest.TestCase):
         self.assertIn("<!doctype html>", html)
         self.assertIn("只读研究工作台", html)
         self.assertIn("23.75", html)
+        self.assertIn("<svg", html)
+        self.assertIn("polyline", html)
         self.assertIn("structural_instability", html)
         self.assertIn("不构成投资建议", html)
 

@@ -30,6 +30,7 @@
 - `summarize_roll_costs()`：合约级换月 gap 成本统计；
 - `web export`：只读本地 HTML 研究工作台导出；
 - `web serve`：只读本地 HTTP 研究工作台；
+- Web 工作台增加近期金油比 SVG 走势图；
 - `backtest`/`evidence` 支持 `--roll-cost-bps` 附加换月价差成本；
 - `contracts backtest`：从合约级 CSV 直接运行 episode 成本回测；
 - `roll_aware_contract_return()`：真实主力合约链含换月结算的持有期收益计算；

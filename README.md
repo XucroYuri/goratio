@@ -206,7 +206,7 @@ goratio evidence --period 10y --cost-bps 20 --roll-cost-bps 5 --json
 goratio web export --period 10y --output dashboard.html
 ```
 
-该页面是自包含只读研究快照，不包含下单或交互式交易能力。也可启动本地只读 HTTP 工作台：
+该页面包含近期金油比 SVG 走势图、当前比值、双因子状态、v2 证据门槛和风险标记；仍不包含下单或交互式交易能力。也可启动本地只读 HTTP 工作台：
 
 ```bash
 goratio web serve --period 10y --host 127.0.0.1 --port 8765
