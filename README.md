@@ -192,6 +192,8 @@ goratio backtest --period 10y --horizon 126 --cost-bps 20 --t1-close --json
 
 当前仍是诊断回测，不是冻结协议证据；真实换月、保证金、市场冲击和 T+1 open/settle 执行缺口尚未接入。
 
+`evidence_gates` 模块把 episode OOS 门槛、98.33% 家族区间、成本后正收益和回撤门控组合为协议 v2 的证据判断入口，用于后续正式验收前的方法闭环。
+
 ## 数据来源与口径
 
 | 来源 | 黄金 | 原油 | 口径 | 启用方式 |
