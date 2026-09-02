@@ -64,6 +64,7 @@ class WebServerTests(unittest.TestCase):
             ) as response:
                 body = response.read().decode("utf-8")
             self.assertIn("只读研究工作台", body)
+            self.assertIn('http-equiv="refresh"', body)
             with urllib.request.urlopen(
                 f"http://127.0.0.1:{port}/health", timeout=3
             ) as response:
