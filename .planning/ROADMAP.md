@@ -35,6 +35,7 @@
 - [x] `contracts backtest` 可将合约级 CSV 桥接后直接运行 episode 成本回测。
 - [x] `roll_aware_contract_return()` 已提供显式换月结算/重开仓的合约链收益验证入口。
 - [x] `contract_episode_return_summary()` 可对 episode 批量对比连续收益与真实换月收益。
+- [x] 保证金/名义敞口估算已加入 `margin.py` 与 `tradability` 报告。
 - [ ] 在完整持仓/换月引擎中接入持仓/资金/保证金。
 - [x] T+1 close 执行近似已加入 `backtest --t1-close`（仍非 open/settle，真实缺口待合约数据接入）。
 - [x] `summarize_roll_costs()` 已提供合约级可量化换月 gap 成本统计。
@@ -61,4 +62,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：93 tests OK。
+当前通过：95 tests OK。

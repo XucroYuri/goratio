@@ -12,6 +12,7 @@ from typing import Iterable, Mapping, Optional, Sequence, Tuple
 
 from .data import AlignedPoint
 from .dataset import PreparedMarketData
+from .margin import one_gc_one_cl_margin_report
 from .providers import RawMarketData
 
 
@@ -196,6 +197,11 @@ def build_tradability_report(
             "oil": CL_SPEC,
         },
         "current_expression": expression,
+        "margin_proxy": (
+            one_gc_one_cl_margin_report(current.gold_close, current.oil_close)
+            if current is not None
+            else None
+        ),
         "execution_gap": next_close_gap_summary(data.selected.points),
         "negative_price_events": [event.__dict__ for event in non_positive],
         "negative_price_policy": {
