@@ -37,7 +37,8 @@
 - `contract_episode_return_summary()`：episode 连续收益与真实换月收益对比验证；
 - 合约 CSV/记录支持可选 `open` 与 `settle` 字段，为 T+1 open/settle 执行缺口打基础；
 - `t1_open_settle_gap()`：计算信号日收盘到下一交易日 open/settle 的执行缺口；
-- `contract_episode_return_summary()` 增加 T+1 open gap 统计。
+- `contract_episode_return_summary()` 增加 T+1 open gap 统计；
+- `margin.py` 与 `tradability` 保证金/名义敞口估算。
 
 ## [0.1.0-rc1] - 2026-09-02
 
