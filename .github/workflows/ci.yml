@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit_tests:
+    name: Python ${{ matrix.python-version }} 单元测试
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    env:
+      PYTHONPATH: src
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: 配置 Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: 运行测试
+        run: python -m unittest discover -s tests -v
+      - name: 检查字节码编译
+        run: python -m compileall -q src tests
+
+  platform_tests:
+    name: ${{ matrix.os }} 平台测试
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    env:
+      PYTHONPATH: src
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: 配置 Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - name: 运行测试
+        run: python -m unittest discover -s tests -v
+
+  package:
+    name: 构建并校验发布包
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: 配置 Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: 安装构建工具
+        run: python -m pip install --disable-pip-version-check build twine
+      - name: 构建 wheel 和 sdist
+        run: python -m build
+      - name: 校验包元数据
+        run: python -m twine check dist/*
+
+  release_gate:
+    name: release-gate
+    if: ${{ always() }}
+    needs: [unit_tests, platform_tests, package]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 汇总必要检查
+        env:
+          UNIT_RESULT: ${{ needs.unit_tests.result }}
+          PLATFORM_RESULT: ${{ needs.platform_tests.result }}
+          PACKAGE_RESULT: ${{ needs.package.result }}
+        run: |
+          test "$UNIT_RESULT" = "success"
+          test "$PLATFORM_RESULT" = "success"
+          test "$PACKAGE_RESULT" = "success"
