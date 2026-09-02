@@ -161,7 +161,7 @@ goratio contracts inspect --csv /path/to/contracts.csv --json
 goratio contracts backtest --csv /path/to/contracts.csv --roll-adjusted --json
 ```
 
-同一份合约 CSV 也可桥接为现有研究管线可消费的 `RawMarketData`，从而用真实主力合约链而不是连续指数进入 `analyze`/`backtest` 流程。另有 `build_roll_adjusted_series()` 可把主力链调整为“换月无虚假跳空”的连续收益序列，供跨换月收益计算使用；其调整后绝对价格不能用于真实金油比水平。桥接函数也支持 `roll_adjusted=True`，直接生成带换月无跳空调整的 RawMarketData。`roll_aware_contract_return()` 则显式模拟换月结算与重开仓，可用于验证真实合约链持有期收益。`contract_episode_return_summary()` 可将一组 episode 的连续序列收益与真实换月收益对比。若合约 CSV 提供 `open`/`settle`，`t1_open_settle_gap()` 可计算信号日收盘到下一交易日 open/settle 的执行缺口；episode 对比摘要也会输出 T+1 open gap 统计。
+同一份合约 CSV 也可桥接为现有研究管线可消费的 `RawMarketData`，从而用真实主力合约链而不是连续指数进入 `analyze`/`backtest` 流程。另有 `build_roll_adjusted_series()` 可把主力链调整为“换月无虚假跳空”的连续收益序列，供跨换月收益计算使用；其调整后绝对价格不能用于真实金油比水平。桥接函数也支持 `roll_adjusted=True`，直接生成带换月无跳空调整的 RawMarketData。`roll_aware_contract_return()` 则显式模拟换月结算与重开仓，可用于验证真实合约链持有期收益。`contract_episode_return_summary()` 可将一组 episode 的连续序列收益与真实换月收益对比。若合约 CSV 提供 `open`/`settle`，`t1_open_settle_gap()` 可计算信号日收盘到下一交易日 open/settle 的执行缺口；episode 对比摘要也会输出 T+1 open gap 统计，并给出扣减 open gap 后的多头真实换月净收益。
 
 ## 双因子 v2（预注册草案）
 

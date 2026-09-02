@@ -410,6 +410,7 @@ def contract_episode_return_summary(records, episodes) -> dict:
             instrument="gold",
             signal_date=episode.date,
         )
+        t1_open_gap = t1_gap.get("open_gap") if t1_gap is not None else None
         rows.append(
             {
                 "entry_date": episode.date.isoformat(),
@@ -421,11 +422,14 @@ def contract_episode_return_summary(records, episodes) -> dict:
                     if roll_return is None
                     else episode.forward_return - roll_return
                 ),
-                "t1_open_gap": (
-                    t1_gap.get("open_gap") if t1_gap is not None else None
-                ),
+                "t1_open_gap": t1_open_gap,
                 "t1_settle_gap": (
                     t1_gap.get("settle_gap") if t1_gap is not None else None
+                ),
+                "long_net_roll_aware_return": (
+                    roll_return - t1_open_gap
+                    if roll_return is not None and t1_open_gap is not None
+                    else None
                 ),
             }
         )
@@ -439,6 +443,11 @@ def contract_episode_return_summary(records, episodes) -> dict:
         for row in rows
         if row["t1_open_gap"] is not None
     ]
+    valid_net = [
+        row["long_net_roll_aware_return"]
+        for row in rows
+        if row["long_net_roll_aware_return"] is not None
+    ]
     return {
         "episode_count": len(rows),
         "valid_roll_aware_count": len(valid),
@@ -448,6 +457,10 @@ def contract_episode_return_summary(records, episodes) -> dict:
         "valid_t1_open_gap_count": len(valid_gaps),
         "mean_abs_t1_open_gap": (
             sum(valid_gaps) / len(valid_gaps) if valid_gaps else None
+        ),
+        "valid_long_net_roll_aware_count": len(valid_net),
+        "mean_long_net_roll_aware_return": (
+            sum(valid_net) / len(valid_net) if valid_net else None
         ),
         "rows": rows,
     }
