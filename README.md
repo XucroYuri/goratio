@@ -24,7 +24,7 @@
 - 70/30 时间顺序切分、边界标签清除、移动区块自助置信区间；
 - 客观文本输出、严格 JSON 契约和可证伪研究报告。
 
-宏观原因归因、图表、告警、交易回测、动态插件、MCP 与 Agent 接口不在本阶段范围内。完整冻结规范见 [01-SPEC.md](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/.planning/phases/01-evidence-baseline/01-SPEC.md)，本次公开实证见 [01-RESULTS.md](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/.planning/phases/01-evidence-baseline/01-RESULTS.md)。
+宏观原因归因、图表、告警、交易回测、动态插件加载不在 1A 范围内；当前在 1A 之外新增了静态插件白名单与只读 MCP/SKILL 薄接口，详见下文。完整冻结规范见 [01-SPEC.md](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/.planning/phases/01-evidence-baseline/01-SPEC.md)，本次公开实证见 [01-RESULTS.md](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/.planning/phases/01-evidence-baseline/01-RESULTS.md)。
 
 ## 安装
 
@@ -64,6 +64,153 @@ goratio update --source yahoo_futures
 ```
 
 若 Yahoo 出现超时、限流或空响应，CLI 会说明海外网络与代理排障方向，并尝试该来源的本地缓存。程序不会静默切换来源。需要代理时，可按本机环境配置 `HTTPS_PROXY` 后重试；不要把凭据写入仓库。
+
+## 插件、MCP 与 SKILL（只读 MVP）
+
+MVP 只提供静态插件白名单，不提供任意动态加载。插件列表可以被审计，插件不能修改已冻结协议：
+
+```bash
+goratio plugin list
+goratio plugin list --kind agent_tool --json
+```
+
+只读 MCP 服务按行读取 JSON-RPC 消息，只查询本地缓存，不发起在线请求，也不写缓存：
+
+```bash
+goratio update --source cn_public
+goratio mcp serve
+```
+
+Agent 可调用的只读工具包括 `get_data_quality`、`get_ratio_snapshot`、`run_research_protocol`、`get_risk_flags` 和 `list_protocols`。MCP 输出不包含交易指令。
+
+SKILL 是给 Agent 的约束手册，用于限制其只引用冻结协议、保留数据不足与风险、避免生成投资建议：
+
+```bash
+goratio skill render
+```
+
+## Episode 级事件诊断
+
+1A 的 H3 事件研究按日频状态计数；同一段低分位区间会产生大量重叠样本。作为协议 v2 的前置诊断，`episode` 命令先把连续低分位状态压缩成 episode：
+
+```bash
+goratio episode --period 10y --horizon 126
+goratio episode --period 10y --horizon 252 --json
+```
+
+该命令输出日频低状态事件数、episode 数、每个 episode 的平均收益和 70/30 切分下的样本外 episode 数。它尚未进入冻结协议，只能作为“样本独立性”诊断使用。
+
+如需把 episode 作为事件研究样本并查看 63/126/252 三个期限的 OOS 门槛诊断：
+
+```bash
+goratio episode-study --period 10y --json
+```
+
+该命令输出每个期限的样本内/样本外 episode 数、边界清除数、episode 相对全样本基线的平均差值、95% 与 98.33% 差值区间，以及 `insufficient_data / supported / not_supported` 诊断状态。当前 bootstrap 使用 trade-level iid 近似，后续可在真实合约数据上升级为更复杂的时间依赖结构。
+
+## 可交易性诊断
+
+`tradability` 命令把当前数据在“能否被真实交易者执行”上的已知约束显式化：
+
+```bash
+goratio tradability --period 10y --json
+goratio tradability --period 10y --json --usdcny 7.2
+```
+
+输出包括：
+
+- GC/CL 合约乘数与名义对应关系；
+- 相邻收盘价缺口的保守代理；
+- 原始数据中的负油价/零价事件列表；
+- 人民币计价披露状态；
+- 当前缺少的换月日历、成交量/持仓量、开盘价、官方结算价等执行要素。
+
+若传入 `--usdcny`，会在人民币披露层输出美元金价/油价的 CNY 等价价格；该换算只用于执行/展示，不进入双因子核心。
+
+`stress` 命令会检查原始数据中的负油价/零价事件是否落在当前研究窗口，并显式标记其不能在 log ratio 模型中正常参与：
+
+```bash
+goratio stress --period 10y --json
+```
+
+该模块仍不提供仓位建议，也不把连续期货序列伪装成真实可执行合约。
+
+## 合约级数据模型与换月日历
+
+为了从“连续指数”走向“真实可执行合约链”，项目新增标准合约记录模型：
+
+```text
+date,instrument,symbol,contract_month,close,volume,open_interest
+```
+
+`contracts` 模块可以：
+
+- 解析标准合约记录；
+- 按成交量/持仓量选择主力合约；
+- 自动检测换月事件；
+- 输出换月日期、新旧合约与同日的换月价差（bps）；
+- 汇总可量化换月 gap 的均值/中位数/最大值成本统计。
+
+当前内置在线来源仍未提供这些字段，因此该模块是后续接入官方结算/合规合约数据源的接口地基，不会把已有连续序列伪装成真实合约。
+
+可用 CLI 检查自有合约级 CSV：
+
+```bash
+goratio contracts inspect --csv /path/to/contracts.csv --json
+goratio contracts backtest --csv /path/to/contracts.csv --roll-adjusted --json
+```
+
+同一份合约 CSV 也可桥接为现有研究管线可消费的 `RawMarketData`，从而用真实主力合约链而不是连续指数进入 `analyze`/`backtest` 流程。另有 `build_roll_adjusted_series()` 可把主力链调整为“换月无虚假跳空”的连续收益序列，供跨换月收益计算使用；其调整后绝对价格不能用于真实金油比水平。桥接函数也支持 `roll_adjusted=True`，直接生成带换月无跳空调整的 RawMarketData。
+
+## 双因子 v2（预注册草案）
+
+v2 以 `goratio-2a-v1` 为协议草案，先固定定义，再允许数据说话：
+
+- F1 估值因子：滚动 5 年金油比分位；
+- F2 趋势确认因子：黄金 252 个共同交易日动量；
+- 低估值 + 正动量 → `positive_research_trigger`；
+- 高估值 + 负动量 → `negative_research_trigger`；
+- 若动量不确认，只保持观察状态。
+
+当前输出研究状态，不构成买入/卖出建议：
+
+```bash
+goratio factor status --period 10y --json
+goratio factor status --period 10y --variant b --json
+```
+
+变体 B“机会 + 结构稳定性”已加入无前视稳定性因子：使用滚动 5 年与最近 252 日的中位数漂移 `median_shift_z` 判断结构是否稳定；估值极端但结构不稳定时只报告 `*_structure_unstable`，不生成研究触发。
+
+## 成本后 episode 回测与风控门控诊断
+
+`backtest` 先把低分位状态压缩成 episode，再只保留符合 v2 趋势确认的交易，并扣除单次往返成本：
+
+```bash
+goratio backtest --period 10y --horizon 126 --cost-bps 20 --json
+goratio backtest --period 10y --horizon 126 --cost-bps 20 --t1-close --roll-cost-bps 5 --json
+```
+
+输出交易数、平均毛收益/净收益、正收益比例、累计净值最大回撤，以及最小交易数、成本后正收益、回撤上限等风控门控。加 `--t1-close` 后，以信号后一个共同交易日收盘价作为执行价，是 T+1 执行缺口在现有日线数据上的可落地近似。
+
+当前仍是诊断回测，不是冻结协议证据；真实换月、保证金、市场冲击和 T+1 open/settle 执行缺口尚未接入。
+
+`evidence_gates` 模块把 episode OOS 门槛、98.33% 家族区间、成本后正收益和回撤门控组合为协议 v2 的证据判断入口，用于后续正式验收前的方法闭环。CLI 可运行：
+
+```bash
+goratio evidence --period 10y --cost-bps 20 --roll-cost-bps 5 --json
+```
+
+只读 Web 工作台以本地 HTML 导出形式开始落地：
+
+```bash
+goratio web export --period 10y --output dashboard.html
+```
+
+该页面是自包含只读研究快照，不包含下单或交互式交易能力。也可启动本地只读 HTTP 工作台：
+
+```bash
+goratio web serve --period 10y --host 127.0.0.1 --port 8765
+```
 
 ## 数据来源与口径
 
