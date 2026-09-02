@@ -29,6 +29,7 @@ class ContractSeriesTests(unittest.TestCase):
                 date=date(2024, 1, 3), instrument="gold", symbol="GC",
                 contract_month="2024-04", close=2020.0,
                 volume=200, open_interest=300,
+                open=2015.0, settle=2018.0,
             ),
         ]
 
@@ -113,6 +114,7 @@ class RollAdjustedSeriesTests(unittest.TestCase):
                 date=date(2024, 1, 3), instrument="gold", symbol="GC",
                 contract_month="2024-04", close=2020.0,
                 volume=200, open_interest=300,
+                open=2015.0, settle=2018.0,
             ),
             ContractRecord(
                 date=date(2024, 1, 4), instrument="gold", symbol="GC",
@@ -172,6 +174,7 @@ class RollAdjustedSeriesTests(unittest.TestCase):
                 date=date(2024, 1, 3), instrument="gold", symbol="GC",
                 contract_month="2024-04", close=2020.0,
                 volume=200, open_interest=300,
+                open=2015.0, settle=2018.0,
             ),
         ]
 
@@ -200,6 +203,7 @@ class RollAdjustedSeriesTests(unittest.TestCase):
                 date=date(2024, 1, 3), instrument="gold", symbol="GC",
                 contract_month="2024-04", close=2020.0,
                 volume=200, open_interest=300,
+                open=2015.0, settle=2018.0,
             ),
             ContractRecord(
                 date=date(2024, 1, 4), instrument="gold", symbol="GC",
@@ -240,6 +244,7 @@ class RollAdjustedSeriesTests(unittest.TestCase):
                 date=date(2024, 1, 3), instrument="gold", symbol="GC",
                 contract_month="2024-04", close=2020.0,
                 volume=200, open_interest=300,
+                open=2015.0, settle=2018.0,
             ),
             ContractRecord(
                 date=date(2024, 1, 4), instrument="gold", symbol="GC",
@@ -265,6 +270,7 @@ class RollAdjustedSeriesTests(unittest.TestCase):
             (2010 / 2000) * (2030 / 2020) - 1,
         )
         self.assertIsNotNone(summary["mean_absolute_difference"])
+        self.assertGreaterEqual(summary["valid_t1_open_gap_count"], 1)
 
 
     def test_t1_open_settle_gap_uses_optional_fields(self) -> None:
