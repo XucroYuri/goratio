@@ -53,6 +53,8 @@ class ContractSeriesTests(unittest.TestCase):
                 "close": "75.5",
                 "volume": "1000",
                 "open_interest": "500",
+                "open": "75.0",
+                "settle": "75.6",
             }
         ]
 
@@ -61,6 +63,8 @@ class ContractSeriesTests(unittest.TestCase):
         self.assertEqual(records[0].contract_month, "2024-03")
         self.assertEqual(records[0].close, 75.5)
         self.assertEqual(records[0].volume, 1000.0)
+        self.assertEqual(records[0].open, 75.0)
+        self.assertEqual(records[0].settle, 75.6)
 
 
 class ContractCsvBridgeTests(unittest.TestCase):
