@@ -45,10 +45,11 @@
 - [ ] 双因子 v2 的 episode 级正式样本外成本后检验报告。
 - [ ] 从诊断回测升级为真实合约级回测：换月、保证金、市场冲击、T+1 open/settle。
 - [ ] 正式预注册成本后回测门槛与家族检验（已具备模块入口）。
-- [ ] 只读 Web 工作台（最后）。
+- [x] 只读 Web 工作台开始落地：`web export` 本地自包含 HTML。
+- [ ] 后续可增加本地 HTTP 只读服务与图表，但仍不提供交易指令。
 
 ## 验证
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：85 tests OK。
+当前通过：87 tests OK。

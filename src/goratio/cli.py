@@ -3,6 +3,7 @@
 import argparse
 from datetime import date, datetime, timezone
 import json
+from pathlib import Path
 import sys
 from typing import Optional, Sequence, TextIO
 
@@ -36,7 +37,8 @@ from .protocol_v2 import (
 from .providers import ProviderError
 from .reporting import build_result
 from .stress import tail_stress_report
-from .research import compare_source_results, run_research
+from .web import render_dashboard_html
+from .research import compare_source_results, run_research, summarize_current
 from .tradability import build_tradability_report
 
 
@@ -155,6 +157,19 @@ def build_parser() -> argparse.ArgumentParser:
     evidence.add_argument("--json", action="store_true", dest="as_json")
     evidence.add_argument("--timeout", type=float, default=10.0)
     evidence.add_argument("--cost-bps", type=float, default=20.0)
+
+    web = commands.add_parser("web", help="只读 Web 工作台（本地 HTML 导出）")
+    web_subcommands = web.add_subparsers(dest="web_command", required=True)
+    web_export = web_subcommands.add_parser("export", help="导出自包含 HTML 快照")
+    web_export.add_argument("--period", choices=("3y", "5y", "10y"), default="10y")
+    web_export.add_argument(
+        "--source",
+        choices=("cn_public", "yahoo_futures"),
+        default="cn_public",
+    )
+    web_export.add_argument("--timeout", type=float, default=10.0)
+    web_export.add_argument("--output", type=str, help="输出 HTML 文件路径；缺省输出到 stdout")
+    web_export.add_argument("--json", action="store_true", dest="as_json", help="同时输出 JSON 数据载荷")
 
     factor = commands.add_parser("factor", help="查看预注册双因子 v2 当前研究状态")
     factor_subcommands = factor.add_subparsers(dest="factor_command", required=True)
@@ -378,6 +393,41 @@ def main(
             return 0
         if args.command == "mcp":
             mcp_serve(loader, stdin=stdin, stdout=stdout)
+            return 0
+        if args.command == "web":
+            loaded = loader.load(args.source, timeout=args.timeout)
+            prepared = prepare_market_data(
+                loaded.raw,
+                period=args.period,
+                completed_before=completed_before,
+                provenance=loaded.provenance,
+                cache_stale=loaded.cache_stale,
+            )
+            current = summarize_current(
+                prepared.history.points,
+                prepared.selected.points,
+            )
+            payload = {
+                "schema_version": "goratio-web-v1",
+                "source_id": prepared.source.source_id,
+                "as_of": current["as_of"],
+                "ratio": current,
+                "factor": factor_snapshot(prepared),
+                "evidence": run_v2_evidence_bundle(prepared),
+                "risk_flags": (
+                    ["insufficient_history"] if not prepared.evidence_eligible else []
+                ),
+            }
+            html = render_dashboard_html(payload)
+            if args.output:
+                Path(args.output).write_text(html, encoding="utf-8")
+            else:
+                stdout.write(html)
+                stdout.write("\n")
+            if args.as_json:
+                json_payload = payload
+                json_payload["html_path"] = args.output
+                stdout.write(json.dumps(json_payload, ensure_ascii=False, allow_nan=False) + "\n")
             return 0
         if args.command == "factor":
             loaded = loader.load(args.source, timeout=args.timeout)

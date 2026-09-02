@@ -199,6 +199,14 @@ goratio backtest --period 10y --horizon 126 --cost-bps 20 --t1-close --json
 goratio evidence --period 10y --cost-bps 20 --json
 ```
 
+只读 Web 工作台以本地 HTML 导出形式开始落地：
+
+```bash
+goratio web export --period 10y --output dashboard.html
+```
+
+该页面是自包含只读研究快照，不包含下单或交互式交易能力。
+
 ## 数据来源与口径
 
 | 来源 | 黄金 | 原油 | 口径 | 启用方式 |

@@ -306,5 +306,26 @@ class CLITests(unittest.TestCase):
         )
 
 
+    def test_web_export_writes_readonly_html(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output_path = Path(directory) / "dashboard.html"
+            errors = io.StringIO()
+            exit_code = main(
+                [
+                    "web", "export", "--source", "cn_public", "--period", "5y",
+                    "--output", str(output_path),
+                ],
+                loader=self.make_loader(Path(directory)),
+                today=lambda: date(2024, 1, 4),
+                stdout=io.StringIO(),
+                stderr=errors,
+            )
+            rendered = output_path.read_text(encoding="utf-8")
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(errors.getvalue(), "")
+        self.assertIn("只读研究工作台", rendered)
+        self.assertIn("不构成投资建议", rendered)
+
 if __name__ == "__main__":
     unittest.main()
