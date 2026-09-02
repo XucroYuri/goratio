@@ -431,3 +431,50 @@ def contract_episode_return_summary(records, episodes) -> dict:
         ),
         "rows": rows,
     }
+
+
+def t1_open_settle_gap(
+    records: Sequence[ContractRecord],
+    *,
+    instrument: str,
+    signal_date: date,
+) -> Optional[dict]:
+    """计算信号日收盘到下一交易日 open/settle 的执行缺口。
+
+    需要合约记录包含 open/settle 字段；缺少时返回 None。
+    """
+    report = build_contract_series(records)
+    if instrument not in report["series"]:
+        return None
+    calendar = report["series"][instrument]["calendar"]
+    signal_point = None
+    next_point = None
+    for point in calendar:
+        current_date = date.fromisoformat(point["date"])
+        if current_date == signal_date:
+            signal_point = point
+        elif current_date > signal_date and signal_point is not None:
+            next_point = point
+            break
+    if signal_point is None or next_point is None:
+        return None
+    if next_point.get("open") is None and next_point.get("settle") is None:
+        return None
+    signal_close = signal_point["close"]
+    return {
+        "signal_date": signal_date.isoformat(),
+        "next_date": next_point["date"],
+        "signal_close": signal_close,
+        "next_open": next_point.get("open"),
+        "next_settle": next_point.get("settle"),
+        "open_gap": (
+            next_point["open"] / signal_close - 1
+            if next_point.get("open") is not None and signal_close != 0
+            else None
+        ),
+        "settle_gap": (
+            next_point["settle"] / signal_close - 1
+            if next_point.get("settle") is not None and signal_close != 0
+            else None
+        ),
+    }
