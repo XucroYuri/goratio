@@ -44,6 +44,7 @@
 - [x] 合约级模型已支持可选 `open`/`settle` 字段。
 - [x] `t1_open_settle_gap()` 已支持基于 open/settle 字段计算 T+1 执行缺口。
 - [x] `contract_episode_return_summary()` 已输出每笔 episode 的 T+1 open gap。
+- [x] episode 摘要已输出扣减 T+1 open gap 的多头真实换月净收益。
 - [ ] 将 T+1 open/settle 执行缺口作为默认成交模型接入回测。
 - [x] `stress` 命令可诊断负油价/零价事件是否落入研究窗口并标注 v2 处理要求。
 - [ ] 负油价/危机尾部事件进一步接入真实回测压力场景与 protocol v2。

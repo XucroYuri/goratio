@@ -39,6 +39,7 @@
 - 合约 CSV/记录支持可选 `open` 与 `settle` 字段，为 T+1 open/settle 执行缺口打基础；
 - `t1_open_settle_gap()`：计算信号日收盘到下一交易日 open/settle 的执行缺口；
 - `contract_episode_return_summary()` 增加 T+1 open gap 统计；
+- `contract_episode_return_summary()` 增加扣减 T+1 open gap 的多头真实换月净收益；
 - `margin.py` 与 `tradability` 保证金/名义敞口估算；
 - `position_pnl_estimate()`：真实主力链持仓保证金与换月 P&L 估算。
 
