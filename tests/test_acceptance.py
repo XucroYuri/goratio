@@ -141,6 +141,18 @@ class AcceptanceTests(unittest.TestCase):
         for forbidden in ("建议买入", "建议卖出", "最优仓位", "保证收益"):
             self.assertNotIn(forbidden, rendered)
 
+    def test_release_documents_avoid_directional_or_guaranteed_language(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        surfaces = (
+            root / "README.md",
+            root / ".planning/phases/01-evidence-baseline/01-RESULTS.md",
+            root / "examples/README.md",
+        )
+        rendered = "\n".join(path.read_text(encoding="utf-8") for path in surfaces)
+
+        for forbidden in ("建议买入", "建议卖出", "最优仓位", "保证收益"):
+            self.assertNotIn(forbidden, rendered)
+
 
 if __name__ == "__main__":
     unittest.main()
