@@ -2,11 +2,12 @@ import io
 import json
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from datetime import date, datetime, timezone
 from pathlib import Path
 
 from goratio.cache import CacheStore, DataLoader
-from goratio.cli import main
+from goratio.cli import build_parser, main
 from goratio.providers import RawMarketData, SINA_METADATA
 
 
@@ -34,6 +35,15 @@ class CLITests(unittest.TestCase):
             cache=CacheStore(root),
             providers={"cn_public": FixedProvider()},
         )
+
+    def test_version_uses_release_candidate_package_version(self) -> None:
+        output = io.StringIO()
+
+        with redirect_stdout(output), self.assertRaises(SystemExit) as raised:
+            build_parser().parse_args(["--version"])
+
+        self.assertEqual(raised.exception.code, 0)
+        self.assertEqual(output.getvalue(), "goratio 0.1.0rc1\n")
 
     def test_now_json_exposes_prices_coverage_and_no_evidence_conclusion(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

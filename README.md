@@ -19,11 +19,11 @@
 - 70/30 时间顺序切分、边界标签清除、移动区块自助置信区间；
 - 客观文本输出、严格 JSON 契约和可证伪研究报告。
 
-宏观原因归因、图表、告警、交易回测、动态插件、MCP 与 Agent 接口不在本阶段范围内。完整冻结规范见 [01-SPEC.md](.planning/phases/01-evidence-baseline/01-SPEC.md)，本次公开实证见 [01-RESULTS.md](.planning/phases/01-evidence-baseline/01-RESULTS.md)。
+宏观原因归因、图表、告警、交易回测、动态插件、MCP 与 Agent 接口不在本阶段范围内。完整冻结规范见 [01-SPEC.md](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/.planning/phases/01-evidence-baseline/01-SPEC.md)，本次公开实证见 [01-RESULTS.md](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/.planning/phases/01-evidence-baseline/01-RESULTS.md)。
 
 ## 安装
 
-需要 Python 3.9 或更高版本，无运行时第三方依赖。
+需要 Python 3.11 或更高版本，无运行时第三方依赖。
 
 ```bash
 python3 -m venv .venv
@@ -87,7 +87,7 @@ date,gold_close,oil_close
 2024-01-03,2042.10,73.10
 ```
 
-仓库中的 [sample-import.csv](examples/sample-import.csv) 是纯合成格式样例，不代表真实历史价格。导入命令：
+仓库中的 [sample-import.csv](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/examples/sample-import.csv) 是纯合成格式样例，不代表真实历史价格。导入命令：
 
 ```bash
 goratio update --source cn_public --import-csv /path/to/your-owned-data.csv
@@ -150,4 +150,4 @@ PYTHONPATH=src python3 -m compileall -q src tests
 
 ## 许可
 
-代码以 [MIT License](LICENSE) 发布。在线数据仍受各数据服务商自身条款约束，MIT 许可不授予第三方数据的再分发权。
+代码以 [MIT License](https://github.com/XucroYuri/goratio/blob/v0.1.0-rc1/LICENSE) 发布。在线数据仍受各数据服务商自身条款约束，MIT 许可不授予第三方数据的再分发权。

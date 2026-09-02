@@ -6,6 +6,7 @@ import json
 import sys
 from typing import Optional, Sequence, TextIO
 
+from . import __version__
 from .cache import (
     CacheError,
     DataLoader,
@@ -33,7 +34,9 @@ def build_parser() -> argparse.ArgumentParser:
         prog="goratio",
         description="金油比价历史统计与概率分析工具",
     )
-    parser.add_argument("--version", action="version", version="goratio 0.1.0")
+    parser.add_argument(
+        "--version", action="version", version=f"goratio {__version__}"
+    )
     commands = parser.add_subparsers(dest="command", required=True)
     for command, help_text in (
         ("now", "显示当前比值、滚动中枢和数据覆盖"),
