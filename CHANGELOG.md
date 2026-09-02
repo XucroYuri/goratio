@@ -2,6 +2,37 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 的结构，并使用 [语义化版本](https://semver.org/lang/zh-CN/)。候选版本的命令行和 JSON 契约仍可能在正式版前调整。
 
+## [Unreleased]
+
+### 新增
+
+- 静态插件白名单与只读 Agent 薄接口；
+- `plugin list`、`mcp serve`、`skill render` 子命令；
+- 无第三方依赖的只读 MCP JSON-RPC 服务；
+- Agent SKILL 约束手册，限制只引用冻结协议、保留风险和数据不足；
+- Episode 级低分位事件压缩与 `episode` 诊断命令；
+- 可交易性诊断模块与 `tradability` 命令：合约规格、执行缺口代理、负油价审计、人民币披露；
+- 双因子 v2 预注册协议草案 `goratio-2a-v1` 与 `factor status` 命令；
+- 成本后 episode 回测与风控门控诊断 `backtest` 命令；
+- 双因子 v2 变体 B：无前视在线结构稳定性因子 `regime.py` 与 `factor status --variant b`；
+- Episode 级样本外事件研究诊断模块与 `episode-study` 命令；
+- Episode v2 前置证据加入 95%/98.33% 差值 bootstrap 区间与家族门槛；
+- 合约级数据模型与换月日历模块 `contracts.py`；
+- CLI 子命令 `contracts inspect`：读取标准合约 CSV 并输出主力链/换月事件；
+- `contract_csv_to_raw_market_data`：将合约级 CSV 桥接到现有研究/回测管线；
+- `tradability --usdcny`：人民币计价披露层支持传入 USD/CNY，不进入核心因子；
+- `backtest --t1-close`：成本后 episode 回测支持 T+1 共同交易日收盘价执行近似；
+- `build_roll_adjusted_series()`：合约级主力链换月无跳空连续收益序列；
+- `contract_csv_to_raw_market_data(..., roll_adjusted=True)`：直接生成换月无跳空调整的 RawMarketData；
+- `stress` 命令：负油价/零价危机尾部事件接入状态诊断；
+- `evidence_gates`：协议 v2 成本后 episode 级组合证据门槛；
+- `evidence` CLI 命令：直接运行双因子 v2 成本后组合门槛；
+- `summarize_roll_costs()`：合约级换月 gap 成本统计；
+- `web export`：只读本地 HTML 研究工作台导出；
+- `web serve`：只读本地 HTTP 研究工作台；
+- `backtest`/`evidence` 支持 `--roll-cost-bps` 附加换月价差成本；
+- `contracts backtest`：从合约级 CSV 直接运行 episode 成本回测。
+
 ## [0.1.0-rc1] - 2026-09-02
 
 ### 新增
