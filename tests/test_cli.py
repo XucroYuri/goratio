@@ -266,6 +266,22 @@ class CLITests(unittest.TestCase):
             payload["roll_events"][0]["new_contract"], "2024-04"
         )
 
+    def test_stress_command_returns_no_events_on_positive_only_cache(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = io.StringIO()
+            exit_code = main(
+                ["stress", "--source", "cn_public", "--period", "5y", "--json"],
+                loader=self.make_loader(Path(directory)),
+                today=lambda: date(2024, 1, 4),
+                stdout=output,
+                stderr=io.StringIO(),
+            )
+
+        payload = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["non_positive_event_count"], 0)
+        self.assertEqual(payload["events"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

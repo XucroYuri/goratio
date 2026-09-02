@@ -34,6 +34,7 @@ from .protocol_v2 import (
 )
 from .providers import ProviderError
 from .reporting import build_result
+from .stress import tail_stress_report
 from .research import compare_source_results, run_research
 from .tradability import build_tradability_report
 
@@ -61,6 +62,7 @@ def build_parser() -> argparse.ArgumentParser:
         ("episode", "显示低分位 episode 与日频事件的压缩诊断"),
         ("tradability", "显示可交易性诊断：合约规格、执行缺口、负油价与人民币披露"),
         ("episode-study", "运行 episode 级 63/126/252 样本外事件研究诊断"),
+        ("stress", "检查负油价/零价危机事件相对研究窗口的接入状态"),
     ):
         subparser = commands.add_parser(command, help=help_text)
         subparser.add_argument(
@@ -533,6 +535,31 @@ def main(
                         f"  {horizon} 交易日：样本外 episode {out['sample_count']} 个；"
                         f"均值 {_format_number(out['mean'])}；"
                         f"结论 {report['evidence_status']}\n"
+                    )
+            return 0
+        if args.command == "stress":
+            report = tail_stress_report(loaded.raw, prepared)
+            if args.as_json:
+                stdout.write(
+                    json.dumps(
+                        report,
+                        ensure_ascii=False,
+                        indent=2,
+                        sort_keys=True,
+                        allow_nan=False,
+                    )
+                    + "\n"
+                )
+            else:
+                stdout.write(
+                    f"分析窗口：{report['analysis_window']['first']} 至 "
+                    f"{report['analysis_window']['last']}\n"
+                    f"非正价格事件数：{report['non_positive_event_count']}\n"
+                )
+                for event in report["events"]:
+                    stdout.write(
+                        f"  {event['date']} {event['symbol']} close={event['close']} "
+                        f"in_window={event['in_analysis_window']}\n"
                     )
             return 0
         if args.command == "episode":
