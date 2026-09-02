@@ -481,6 +481,13 @@ def main(
                 "source_id": prepared.source.source_id,
                 "as_of": current["as_of"],
                 "ratio": current,
+                "series": [
+                    {
+                        "date": point.date.isoformat(),
+                        "ratio": point.ratio,
+                    }
+                    for point in prepared.selected.points[-252:]
+                ],
                 "factor": factor_snapshot(prepared),
                 "evidence": run_v2_evidence_bundle(prepared),
                 "risk_flags": (
