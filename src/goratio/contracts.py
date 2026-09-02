@@ -405,6 +405,11 @@ def contract_episode_return_summary(records, episodes) -> dict:
             entry_date=episode.date,
             exit_date=episode.outcome_date,
         )
+        t1_gap = t1_open_settle_gap(
+            records,
+            instrument="gold",
+            signal_date=episode.date,
+        )
         rows.append(
             {
                 "entry_date": episode.date.isoformat(),
@@ -416,6 +421,12 @@ def contract_episode_return_summary(records, episodes) -> dict:
                     if roll_return is None
                     else episode.forward_return - roll_return
                 ),
+                "t1_open_gap": (
+                    t1_gap.get("open_gap") if t1_gap is not None else None
+                ),
+                "t1_settle_gap": (
+                    t1_gap.get("settle_gap") if t1_gap is not None else None
+                ),
             }
         )
     valid = [
@@ -423,11 +434,20 @@ def contract_episode_return_summary(records, episodes) -> dict:
         for row in rows
         if row["difference"] is not None
     ]
+    valid_gaps = [
+        abs(row["t1_open_gap"])
+        for row in rows
+        if row["t1_open_gap"] is not None
+    ]
     return {
         "episode_count": len(rows),
         "valid_roll_aware_count": len(valid),
         "mean_absolute_difference": (
             sum(abs(value) for value in valid) / len(valid) if valid else None
+        ),
+        "valid_t1_open_gap_count": len(valid_gaps),
+        "mean_abs_t1_open_gap": (
+            sum(valid_gaps) / len(valid_gaps) if valid_gaps else None
         ),
         "rows": rows,
     }
