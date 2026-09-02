@@ -34,7 +34,8 @@
 - `contracts backtest`：从合约级 CSV 直接运行 episode 成本回测；
 - `roll_aware_contract_return()`：真实主力合约链含换月结算的持有期收益计算；
 - `contract_episode_return_summary()`：episode 连续收益与真实换月收益对比验证；
-- 合约 CSV/记录支持可选 `open` 与 `settle` 字段，为 T+1 open/settle 执行缺口打基础。
+- 合约 CSV/记录支持可选 `open` 与 `settle` 字段，为 T+1 open/settle 执行缺口打基础；
+- `t1_open_settle_gap()`：计算信号日收盘到下一交易日 open/settle 的执行缺口。
 
 ## [0.1.0-rc1] - 2026-09-02
 
