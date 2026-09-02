@@ -27,9 +27,11 @@ Homepage = "https://github.com/XucroYuri/goratio"
 Repository = "https://github.com/XucroYuri/goratio"
 Issues = "https://github.com/XucroYuri/goratio/issues"
 
+[project.scripts]
+goratio = "goratio.cli:main"
+
 [tool.setuptools]
 package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
-

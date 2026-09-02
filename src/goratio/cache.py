@@ -201,6 +201,9 @@ class DataLoader:
                 raise ValueError("source 必须是 cn_public 或 yahoo_futures") from exc
         return create_provider(source_id)
 
+    def provider_metadata(self, source_id: str) -> SourceMetadata:
+        return self._provider_for(source_id).metadata
+
     def load(self, source_id: str, *, timeout: float = 10) -> LoadedData:
         provider = self._provider_for(source_id)
         try:
