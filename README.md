@@ -213,6 +213,8 @@ goratio web export --period 10y --output dashboard.html
 goratio web serve --period 10y --host 127.0.0.1 --port 8765
 ```
 
+该本地 HTTP 页面默认每 60 秒自动刷新，适合作为只读研究监控。
+
 ## 数据来源与口径
 
 | 来源 | 黄金 | 原油 | 口径 | 启用方式 |
