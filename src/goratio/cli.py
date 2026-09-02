@@ -18,7 +18,11 @@ from .cache import (
     import_standard_csv,
     raw_data_hash,
 )
-from .contracts import build_contract_series, read_contract_csv
+from .contracts import (
+    build_contract_series,
+    contract_csv_to_raw_market_data,
+    read_contract_csv,
+)
 from .dataset import DataQualityError, prepare_market_data
 from .episode_study import run_episode_evidence_bundle
 from .evidence_gates import run_v2_evidence_bundle
@@ -109,6 +113,14 @@ def build_parser() -> argparse.ArgumentParser:
     contracts_inspect = contracts_subcommands.add_parser("inspect", help="解析合约 CSV 并输出主力链/换月事件")
     contracts_inspect.add_argument("--csv", type=str, required=True, help="标准合约 CSV 路径")
     contracts_inspect.add_argument("--json", action="store_true", dest="as_json")
+
+    contracts_backtest = contracts_subcommands.add_parser("backtest", help="用合约级 CSV 运行 episode 成本回测")
+    contracts_backtest.add_argument("--csv", type=str, required=True, help="标准合约 CSV 路径")
+    contracts_backtest.add_argument("--roll-adjusted", action="store_true", help="使用换月无跳空调整序列")
+    contracts_backtest.add_argument("--horizon", type=int, choices=(63,126,252), default=126)
+    contracts_backtest.add_argument("--cost-bps", type=float, default=20.0)
+    contracts_backtest.add_argument("--roll-cost-bps", type=float, default=0.0)
+    contracts_backtest.add_argument("--json", action="store_true", dest="as_json")
 
     plugin = commands.add_parser("plugin", help="查看静态插件白名单")
     plugin_subcommands = plugin.add_subparsers(dest="plugin_command", required=True)
@@ -331,6 +343,46 @@ def main(
     loader = loader or DataLoader()
     completed_before = today()
     try:
+        if args.command == "contracts" and args.contracts_command == "backtest":
+            raw = contract_csv_to_raw_market_data(
+                args.csv,
+                roll_adjusted=bool(args.roll_adjusted),
+            )
+            prepared = prepare_market_data(
+                raw,
+                period="10y",
+                completed_before=completed_before,
+                provenance="user_contract_csv",
+                cache_stale=False,
+            )
+            report = run_episode_cost_backtest(
+                prepared,
+                horizon=args.horizon,
+                round_trip_cost_bps=args.cost_bps,
+                t1_close_execution=True,
+                roll_cost_bps=args.roll_cost_bps,
+            )
+            report["source_id"] = raw.source.source_id
+            report["price_basis"] = raw.source.price_basis
+            if args.as_json:
+                stdout.write(
+                    json.dumps(
+                        report,
+                        ensure_ascii=False,
+                        indent=2,
+                        sort_keys=True,
+                        allow_nan=False,
+                    )
+                    + "\n"
+                )
+            else:
+                stdout.write(
+                    f"合约 CSV 回测：{report['source_id']}；"
+                    f"换月无跳空调整={bool(args.roll_adjusted)}\n"
+                    f"交易数：{report['trade_count']}；平均净收益："
+                    f"{_format_number(report['metrics']['mean_net_return'])}\n"
+                )
+            return 0
         if args.command == "contracts":
             records = read_contract_csv(args.csv)
             report = build_contract_series(records)

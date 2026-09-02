@@ -32,7 +32,8 @@
 - [x] 合约级 CSV 可桥接为 `RawMarketData` 并进入 `prepare_market_data`。
 - [x] 合约级主力链可生成换月无跳空的连续收益序列 `build_roll_adjusted_series()`。
 - [x] 合约 CSV 可 `roll_adjusted=True` 桥接为 RawMarketData，供跨换月收益序列进入研究管线。
-- [ ] 将合约级主力链自动用于 `backtest` 的真实换月收益计算。
+- [x] `contracts backtest` 可将合约级 CSV 桥接后直接运行 episode 成本回测。
+- [ ] 真实换月收益计算仍需在完整持仓/换月引擎中验证。
 - [x] T+1 close 执行近似已加入 `backtest --t1-close`（仍非 open/settle，真实缺口待合约数据接入）。
 - [x] `summarize_roll_costs()` 已提供合约级可量化换月 gap 成本统计。
 - [x] 真实换月 gap 成本可作为 `--roll-cost-bps` 附加到 `backtest`/`evidence`。
@@ -53,4 +54,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：88 tests OK。
+当前通过：89 tests OK。
