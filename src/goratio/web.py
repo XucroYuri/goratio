@@ -9,7 +9,11 @@ import json
 from typing import Mapping
 
 
-def render_dashboard_html(payload: Mapping) -> str:
+def render_dashboard_html(
+    payload: Mapping,
+    *,
+    refresh_seconds: int = None,
+) -> str:
     """将结构化 payload 渲染为只读 HTML 页面。"""
     e = html.escape
     title = e("goratio 只读研究工作台")
@@ -82,11 +86,18 @@ def render_dashboard_html(payload: Mapping) -> str:
                 f"<polyline fill=\"none\" stroke=\"#1a73e8\" stroke-width=\"1.5\" points=\"{' '.join(points)}\"/></svg>"
             )
 
+    refresh_tag = ""
+    if refresh_seconds is not None and refresh_seconds > 0:
+        refresh_tag = (
+            f'<meta http-equiv="refresh" content="{refresh_seconds}">'
+        )
+
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{refresh_tag}
 <title>{title}</title>
 <style>
 body {{ font-family: sans-serif; max-width: 760px; margin: 32px auto; padding: 0 16px; }}
@@ -117,7 +128,7 @@ def make_dashboard_server(payload: Mapping, host: str = "127.0.0.1", port: int =
     """创建只读本地 HTTP 服务（ThreadingHTTPServer）。"""
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-    html = render_dashboard_html(payload)
+    html = render_dashboard_html(payload, refresh_seconds=60)
 
     class DashboardHandler(BaseHTTPRequestHandler):
         def do_GET(self):
