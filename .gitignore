@@ -10,8 +10,8 @@ build/
 dist/
 .DS_Store
 .worktrees/
+.omc/
 
 # 价格数据由用户在本地生成，不进入开源仓库。
 .goratio/
 data/cache/
-

@@ -1,0 +1,41 @@
+name: 研究协议提案
+description: 在实现前讨论新的假设、参数、诊断或证据标准。
+title: "[协议] "
+body:
+  - type: input
+    id: hypothesis
+    attributes:
+      label: 可证伪假设
+      description: 用可以被数据否定的一句话表达。
+    validations:
+      required: true
+  - type: textarea
+    id: protocol
+    attributes:
+      label: 预注册协议
+      description: 列出数据口径、样本期、参数、检验数量、样本外划分和通过标准。
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: 方法依据
+      description: 提供原始论文、官方文档或其他可核验来源，并说明替代方案。
+    validations:
+      required: true
+  - type: textarea
+    id: failure
+    attributes:
+      label: 失败与负面结果处理
+      description: 说明哪些结果会否定假设，以及如何原样报告。
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: 协议确认
+      options:
+        - label: 该协议将在查看新结果前冻结，不用于修饰既有结果。
+          required: true
+        - label: 提案不会直接输出买卖、仓位或收益保证。
+          required: true
