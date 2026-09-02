@@ -155,6 +155,12 @@ def _sup_f(values, minimum_segment):
 
 
 def _moving_block_sample(values, block_length, generator):
+    if (
+        isinstance(block_length, bool)
+        or not isinstance(block_length, int)
+        or block_length <= 0
+    ):
+        raise ValueError("block_length 必须是正整数")
     sample = []
     count = len(values)
     while len(sample) < count:

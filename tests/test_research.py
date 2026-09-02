@@ -9,6 +9,7 @@ from goratio.dataset import prepare_market_data
 from goratio.providers import RawMarketData, SINA_METADATA
 from goratio.research import (
     ForwardEvent,
+    _moving_block_sample,
     adf_mean_reversion,
     build_forward_events,
     compare_source_results,
@@ -64,6 +65,13 @@ class MeanReversionTests(unittest.TestCase):
 
 
 class StructuralBreakTests(unittest.TestCase):
+    def test_moving_block_sample_rejects_non_positive_block_length(self) -> None:
+        for block_length in (0, -1):
+            with self.subTest(block_length=block_length), self.assertRaisesRegex(
+                ValueError, "block_length.*正整数"
+            ):
+                _moving_block_sample([], block_length, random.Random(7))
+
     def test_sup_f_flags_a_large_persistent_level_shift(self) -> None:
         start = date(2018, 1, 1)
         points = tuple(
