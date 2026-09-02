@@ -140,7 +140,7 @@ goratio stress --period 10y --json
 为了从“连续指数”走向“真实可执行合约链”，项目新增标准合约记录模型：
 
 ```text
-date,instrument,symbol,contract_month,close,volume,open_interest
+date,instrument,symbol,contract_month,close,volume,open_interest,open,settle
 ```
 
 `contracts` 模块可以：

@@ -25,6 +25,8 @@ class ContractRecord:
     close: float
     volume: Optional[float] = None
     open_interest: Optional[float] = None
+    open: Optional[float] = None
+    settle: Optional[float] = None
 
 
 @dataclass(frozen=True)
@@ -44,6 +46,8 @@ def _parse_record(record: Mapping[str, object]) -> ContractRecord:
         parsed_date = date.fromisoformat(str(record["date"]))
         volume = record.get("volume")
         open_interest = record.get("open_interest")
+        open_price = record.get("open")
+        settle = record.get("settle")
         return ContractRecord(
             date=parsed_date,
             instrument=str(record["instrument"]),
@@ -56,6 +60,8 @@ def _parse_record(record: Mapping[str, object]) -> ContractRecord:
                 if open_interest not in (None, "")
                 else None
             ),
+            open=float(open_price) if open_price not in (None, "") else None,
+            settle=float(settle) if settle not in (None, "") else None,
         )
     except (KeyError, TypeError, ValueError) as exc:
         raise ValueError(f"无效合约记录: {record}") from exc
@@ -220,6 +226,8 @@ def build_contract_series(
                     "close": point.close,
                     "volume": point.volume,
                     "open_interest": point.open_interest,
+                    "open": point.open,
+                    "settle": point.settle,
                 }
                 for point in selected
             ],
