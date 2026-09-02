@@ -186,7 +186,7 @@ goratio factor status --period 10y --variant b --json
 
 ```bash
 goratio backtest --period 10y --horizon 126 --cost-bps 20 --json
-goratio backtest --period 10y --horizon 126 --cost-bps 20 --t1-close --json
+goratio backtest --period 10y --horizon 126 --cost-bps 20 --t1-close --roll-cost-bps 5 --json
 ```
 
 输出交易数、平均毛收益/净收益、正收益比例、累计净值最大回撤，以及最小交易数、成本后正收益、回撤上限等风控门控。加 `--t1-close` 后，以信号后一个共同交易日收盘价作为执行价，是 T+1 执行缺口在现有日线数据上的可落地近似。
@@ -196,7 +196,7 @@ goratio backtest --period 10y --horizon 126 --cost-bps 20 --t1-close --json
 `evidence_gates` 模块把 episode OOS 门槛、98.33% 家族区间、成本后正收益和回撤门控组合为协议 v2 的证据判断入口，用于后续正式验收前的方法闭环。CLI 可运行：
 
 ```bash
-goratio evidence --period 10y --cost-bps 20 --json
+goratio evidence --period 10y --cost-bps 20 --roll-cost-bps 5 --json
 ```
 
 只读 Web 工作台以本地 HTML 导出形式开始落地：
