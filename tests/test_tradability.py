@@ -102,6 +102,7 @@ class TradabilityTests(unittest.TestCase):
         self.assertEqual(report["contracts"]["gold"]["contract_multiplier"], 100)
         self.assertEqual(report["contracts"]["oil"]["contract_multiplier"], 1000)
         self.assertFalse(report["renminbi_disclosure"]["usdcny_data_loaded"])
+        self.assertIn("margin_proxy", report)
         self.assertIn("no_roll_calendar", report["risk_flags"])
         self.assertIn("不构成投资建议", report["disclaimer"])
 
