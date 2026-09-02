@@ -206,7 +206,11 @@ goratio evidence --period 10y --cost-bps 20 --roll-cost-bps 5 --json
 goratio web export --period 10y --output dashboard.html
 ```
 
-该页面是自包含只读研究快照，不包含下单或交互式交易能力。
+该页面是自包含只读研究快照，不包含下单或交互式交易能力。也可启动本地只读 HTTP 工作台：
+
+```bash
+goratio web serve --period 10y --host 127.0.0.1 --port 8765
+```
 
 ## 数据来源与口径
 

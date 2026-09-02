@@ -85,3 +85,44 @@ td, th {{ border: 1px solid #ccc; padding: 6px 8px; text-align: left; }}
 </body>
 </html>
 """
+
+
+def make_dashboard_server(payload: Mapping, host: str = "127.0.0.1", port: int = 0):
+    """创建只读本地 HTTP 服务（ThreadingHTTPServer）。"""
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+    html = render_dashboard_html(payload)
+
+    class DashboardHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path in ("/", "/index.html"):
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(html.encode("utf-8"))))
+                self.end_headers()
+                self.wfile.write(html.encode("utf-8"))
+            elif self.path == "/health":
+                body = b'{"status":"ok"}'
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+            else:
+                self.send_response(404)
+                self.end_headers()
+
+        def log_message(self, fmt, *args):
+            return
+
+    server = ThreadingHTTPServer((host, port), DashboardHandler)
+    return server
+
+
+def serve_dashboard(payload: Mapping, host: str = "127.0.0.1", port: int = 8765) -> None:
+    """运行只读本地 Web 工作台。"""
+    server = make_dashboard_server(payload, host=host, port=port)
+    try:
+        server.serve_forever()
+    finally:
+        server.server_close()

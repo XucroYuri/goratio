@@ -41,7 +41,7 @@ from .protocol_v2 import (
 from .providers import ProviderError
 from .reporting import build_result
 from .stress import tail_stress_report
-from .web import render_dashboard_html
+from .web import render_dashboard_html, serve_dashboard
 from .research import compare_source_results, run_research, summarize_current
 from .tradability import build_tradability_report
 
@@ -189,6 +189,16 @@ def build_parser() -> argparse.ArgumentParser:
     web_export.add_argument("--timeout", type=float, default=10.0)
     web_export.add_argument("--output", type=str, help="输出 HTML 文件路径；缺省输出到 stdout")
     web_export.add_argument("--json", action="store_true", dest="as_json", help="同时输出 JSON 数据载荷")
+    web_serve = web_subcommands.add_parser("serve", help="启动只读本地 HTTP 工作台")
+    web_serve.add_argument("--period", choices=("3y", "5y", "10y"), default="10y")
+    web_serve.add_argument(
+        "--source",
+        choices=("cn_public", "yahoo_futures"),
+        default="cn_public",
+    )
+    web_serve.add_argument("--timeout", type=float, default=10.0)
+    web_serve.add_argument("--host", default="127.0.0.1")
+    web_serve.add_argument("--port", type=int, default=8765)
 
     factor = commands.add_parser("factor", help="查看预注册双因子 v2 当前研究状态")
     factor_subcommands = factor.add_subparsers(dest="factor_command", required=True)
@@ -477,6 +487,9 @@ def main(
                     ["insufficient_history"] if not prepared.evidence_eligible else []
                 ),
             }
+            if args.web_command == "serve":
+                serve_dashboard(payload, host=args.host, port=args.port)
+                return 0
             html = render_dashboard_html(payload)
             if args.output:
                 Path(args.output).write_text(html, encoding="utf-8")

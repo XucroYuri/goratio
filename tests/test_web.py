@@ -32,5 +32,41 @@ class WebTests(unittest.TestCase):
         self.assertIn("不构成投资建议", html)
 
 
+
+import threading
+import urllib.request
+
+from goratio.web import make_dashboard_server
+
+
+class WebServerTests(unittest.TestCase):
+    def test_readonly_server_serves_dashboard_on_localhost(self) -> None:
+        payload = {
+            "source_id": "cn_public",
+            "ratio": {"as_of": "2024-01-02", "ratio": 23.75},
+            "factor": {"available": False},
+            "evidence": {"horizons": {}},
+            "risk_flags": [],
+        }
+        server = make_dashboard_server(payload, port=0)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            port = server.server_address[1]
+            with urllib.request.urlopen(
+                f"http://127.0.0.1:{port}/", timeout=3
+            ) as response:
+                body = response.read().decode("utf-8")
+            self.assertIn("只读研究工作台", body)
+            with urllib.request.urlopen(
+                f"http://127.0.0.1:{port}/health", timeout=3
+            ) as response:
+                self.assertEqual(response.status, 200)
+        finally:
+            server.shutdown()
+            thread.join(timeout=3)
+            server.server_close()
+
+
 if __name__ == "__main__":
     unittest.main()
