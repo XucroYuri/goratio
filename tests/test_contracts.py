@@ -271,6 +271,10 @@ class RollAdjustedSeriesTests(unittest.TestCase):
         )
         self.assertIsNotNone(summary["mean_absolute_difference"])
         self.assertGreaterEqual(summary["valid_t1_open_gap_count"], 1)
+        self.assertGreaterEqual(summary["valid_long_net_roll_aware_count"], 1)
+        self.assertIsNotNone(
+            summary["rows"][0]["long_net_roll_aware_return"]
+        )
 
 
     def test_t1_open_settle_gap_uses_optional_fields(self) -> None:
