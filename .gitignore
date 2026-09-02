@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.coverage
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+build/
+dist/
+.DS_Store
+.worktrees/
+
+# 价格数据由用户在本地生成，不进入开源仓库。
+.goratio/
+data/cache/
+
