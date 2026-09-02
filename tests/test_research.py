@@ -111,6 +111,7 @@ class EventConstructionTests(unittest.TestCase):
                 low_state=index % 2 == 0,
                 percentile=0.1 if index % 2 == 0 else 0.8,
                 history_count=300,
+                outcome_date=start + timedelta(days=index + 1),
             )
             for index in range(400)
         )
@@ -133,6 +134,40 @@ class EventConstructionTests(unittest.TestCase):
             0,
         )
         self.assertEqual(result["evidence_status"], "supported")
+
+    def test_chronological_split_purges_labels_that_cross_boundary(self) -> None:
+        start = date(2024, 1, 1)
+        events = (
+            ForwardEvent(start, 0.1, True, 0.1, 300, start + timedelta(days=2)),
+            ForwardEvent(
+                start + timedelta(days=1),
+                0.2,
+                True,
+                0.1,
+                300,
+                start + timedelta(days=4),
+            ),
+            ForwardEvent(
+                start + timedelta(days=3),
+                0.3,
+                True,
+                0.1,
+                300,
+                start + timedelta(days=5),
+            ),
+        )
+
+        result = summarize_event_records(
+            events,
+            split_date=start + timedelta(days=3),
+            horizon=2,
+            evidence_eligible=True,
+            bootstrap_repetitions=9,
+        )
+
+        self.assertEqual(result["split"]["in_sample_event_observations"], 1)
+        self.assertEqual(result["split"]["purged_boundary_events"], 1)
+        self.assertEqual(result["split"]["out_of_sample_event_observations"], 1)
 
 
 class ResearchProtocolTests(unittest.TestCase):

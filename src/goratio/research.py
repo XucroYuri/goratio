@@ -21,6 +21,7 @@ class ForwardEvent:
     low_state: bool
     percentile: float
     history_count: int
+    outcome_date: date
 
 
 def _invert_matrix(matrix):
@@ -263,6 +264,7 @@ def build_forward_events(
                 low_state=percentile <= 0.2,
                 percentile=percentile,
                 history_count=len(trailing),
+                outcome_date=future.date,
             )
         )
     return tuple(events)
@@ -417,7 +419,16 @@ def summarize_event_records(
     """按固定顺序切分汇总一个期限的事件记录。"""
 
     ordered = tuple(sorted(events, key=lambda event: event.date))
-    in_sample = tuple(event for event in ordered if event.date < split_date)
+    in_sample = tuple(
+        event
+        for event in ordered
+        if event.date < split_date and event.outcome_date < split_date
+    )
+    purged = tuple(
+        event
+        for event in ordered
+        if event.date < split_date and event.outcome_date >= split_date
+    )
     out_of_sample = tuple(event for event in ordered if event.date >= split_date)
     seed = 20260902 + horizon
     all_summary = _summarize_event_segment(
@@ -461,6 +472,7 @@ def summarize_event_records(
             "rule": "chronological_70_30",
             "split_date": split_date.isoformat(),
             "in_sample_event_observations": len(in_sample),
+            "purged_boundary_events": len(purged),
             "out_of_sample_event_observations": len(out_of_sample),
         },
         "all_sample": all_summary,
