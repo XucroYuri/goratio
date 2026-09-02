@@ -127,6 +127,12 @@ goratio tradability --period 10y --json --usdcny 7.2
 
 若传入 `--usdcny`，会在人民币披露层输出美元金价/油价的 CNY 等价价格；该换算只用于执行/展示，不进入双因子核心。
 
+`stress` 命令会检查原始数据中的负油价/零价事件是否落在当前研究窗口，并显式标记其不能在 log ratio 模型中正常参与：
+
+```bash
+goratio stress --period 10y --json
+```
+
 该模块仍不提供仓位建议，也不把连续期货序列伪装成真实可执行合约。
 
 ## 合约级数据模型与换月日历
