@@ -40,7 +40,8 @@
 - [x] `summarize_roll_costs()` 已提供合约级可量化换月 gap 成本统计。
 - [x] 真实换月 gap 成本可作为 `--roll-cost-bps` 附加到 `backtest`/`evidence`。
 - [x] 合约级模型已支持可选 `open`/`settle` 字段。
-- [ ] T+1 open/settle 执行缺口与自动换月成本模型。
+- [x] `t1_open_settle_gap()` 已支持基于 open/settle 字段计算 T+1 执行缺口。
+- [ ] 将 T+1 open/settle 执行缺口接入回测成交模型。
 - [x] `stress` 命令可诊断负油价/零价事件是否落入研究窗口并标注 v2 处理要求。
 - [ ] 负油价/危机尾部事件进一步接入真实回测压力场景与 protocol v2。
 - [x] 人民币披露层支持可选 `--usdcny` 换算（未自动接入数据源，仍需调用方提供汇率）。
@@ -58,4 +59,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：92 tests OK。
+当前通过：93 tests OK。
