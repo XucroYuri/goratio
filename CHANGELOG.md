@@ -31,7 +31,8 @@
 - `web export`：只读本地 HTML 研究工作台导出；
 - `web serve`：只读本地 HTTP 研究工作台；
 - `backtest`/`evidence` 支持 `--roll-cost-bps` 附加换月价差成本；
-- `contracts backtest`：从合约级 CSV 直接运行 episode 成本回测。
+- `contracts backtest`：从合约级 CSV 直接运行 episode 成本回测；
+- `roll_aware_contract_return()`：真实主力合约链含换月结算的持有期收益计算。
 
 ## [0.1.0-rc1] - 2026-09-02
 
