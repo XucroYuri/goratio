@@ -97,6 +97,8 @@ def position_pnl_estimate(
         "GC" if instrument == "gold" else "CL", 0.1
     )
     margin = notional * rate
+    holding_days = max(0, (exit_date - entry_date).days)
+    financing = financing_cost_estimate(margin, holding_days)
     roll_return = roll_aware_contract_return(
         records,
         instrument=instrument,
@@ -104,6 +106,11 @@ def position_pnl_estimate(
         exit_date=exit_date,
     )
     pnl = notional * roll_return * direction if roll_return is not None else None
+    net_pnl = (
+        pnl - financing
+        if pnl is not None
+        else None
+    )
     return {
         "instrument": instrument,
         "direction": direction,
@@ -112,7 +119,10 @@ def position_pnl_estimate(
         "roll_aware_return": roll_return,
         "notional": notional,
         "margin_estimate": margin,
+        "holding_days": holding_days,
+        "financing_cost_estimate": financing,
         "pnl_estimate": pnl,
+        "net_pnl_estimate": net_pnl,
         "note": "研究性持仓估算，不构成交易建议",
     }
 
