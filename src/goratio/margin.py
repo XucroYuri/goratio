@@ -193,3 +193,24 @@ def batch_equity_summary(sim: dict, *, initial_capital: float = 100000.0) -> dic
         "valid_pnl_count": row_count,
         "note": "简单逐笔资金曲线摘要，不包含重叠持仓、融资与提现",
     }
+
+
+def margin_utilization_summary(sim: dict, *, initial_capital: float = 100000.0) -> dict:
+    """从批量持仓模拟中统计保证金占用率（逐笔近似）。"""
+    if initial_capital <= 0:
+        raise ValueError("initial_capital 必须为正")
+    utilizations = []
+    for row in sim.get("rows", []):
+        margin = row.get("margin_estimate")
+        if margin is None:
+            continue
+        utilizations.append(margin / initial_capital)
+    return {
+        "initial_capital": initial_capital,
+        "valid_margin_count": len(utilizations),
+        "mean_margin_utilization": (
+            sum(utilizations) / len(utilizations) if utilizations else None
+        ),
+        "max_margin_utilization": max(utilizations) if utilizations else None,
+        "note": "逐笔近似保证金占用，不包含重叠持仓的逐日合并监控",
+    }
