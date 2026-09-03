@@ -461,5 +461,18 @@ class CLITests(unittest.TestCase):
         self.assertEqual(payload["protocol"], "goratio-2a-v1")
         self.assertEqual(payload["overview"]["overall_status"], "insufficient_data")
 
+    def test_governance_command_returns_freeze_checklist(self) -> None:
+        output = io.StringIO()
+        exit_code = main(
+            ["governance", "--json"],
+            stdout=output,
+            stderr=io.StringIO(),
+        )
+
+        payload = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["protocol_id"], "goratio-2a-v1")
+        self.assertFalse(payload["external_review"])
+
 if __name__ == "__main__":
     unittest.main()
