@@ -45,7 +45,8 @@
 - `run_position_simulation()`：对一组 episode 批量运行真实主力链持仓估算；
 - `batch_equity_summary()`：基于批量模拟生成简单资金曲线摘要；
 - `formal_v2.generate_v2_formal_report()`：协议 v2 正式验收前的可审计报告入口；
-- `margin_utilization_summary()`：批量持仓保证金占用率统计。
+- `margin_utilization_summary()`：批量持仓保证金占用率统计；
+- `formal` CLI：输出双因子 v2 正式验收前报告。
 
 ## [0.1.0-rc1] - 2026-09-02
 
