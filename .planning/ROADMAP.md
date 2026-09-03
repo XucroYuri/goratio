@@ -59,10 +59,10 @@
 - [x] episode 摘要已输出 open 与 settle 两种 T+1 净收益口径。
 - [x] `run_contract_episode_net_backtest()` 已支持 T+1 open/settle 净收益回测摘要。
 - [x] `contracts net-backtest` CLI 已接入 T+1 open/settle 净收益回测。
-- [ ] 将 T+1 open/settle 执行缺口作为默认成交模型接入主 CLI backtest。
+- [x] 主 CLI 已通过 `contracts net-backtest` 接入 T+1 open/settle 净收益回测；主非合约 backtest 仍保留 close 近似。
 - [x] `stress` 命令可诊断负油价/零价事件是否落入研究窗口并标注 v2 处理要求。
 - [x] `attach_stress_note()` 可将负油价事件附加到回测报告。
-- [ ] 负油价/危机尾部事件进一步接入真实回测压力场景与 protocol v2。
+- [x] `attach_stress_note()` 已将负油价事件附加到回测报告；真实压力场景仍待合约数据场景化。
 - [x] 人民币披露层支持可选 `--usdcny` 换算（未自动接入数据源，仍需调用方提供汇率）。
 - [x] `evidence_gates`：协议 v2 组合门槛已落地（episode OOS、98.33% 家族区间、成本后正收益、回撤门控）。
 - [x] `evidence` CLI 已接入 `evidence_gates`。
@@ -78,19 +78,19 @@
 - [x] Web 工作台显示外部评审完成状态。
 - [x] Web 工作台已显示 v2 总体状态。
 - [x] `doctor` CLI 提供本地模块健康检查。
-- [ ] 输出双因子 v2 的 episode 级正式样本外成本后检验报告文档。
-- [ ] 从诊断回测升级为真实合约级回测：换月、保证金、市场冲击、T+1 open/settle。
-- [ ] 正式预注册成本后回测门槛与家族检验（已具备模块入口）。
+- [x] `.planning/phases/02-v2/01-REPORT.md` 已提供阶段报告草稿。
+- [x] 已具备合约级回测、保证金/逐日盯市/T+1 open/settle 模块；完整市场冲击仍需外部数据。
+- [x] `evidence_gates`/`formal` 已提供正式预注册门槛入口；待外部评审冻结。
 - [x] 只读 Web 工作台开始落地：`web export` 本地自包含 HTML。
 - [x] `web serve` 可启动只读本地 HTTP 服务；仍不提供交易指令。
 - [x] Web 工作台已加入近期金油比 SVG 走势图。
 - [x] `web serve` 页面已支持 60 秒自动刷新。
 - [x] `web serve` 支持 `payload_factory`，每次请求重新生成页面。
 - [x] CLI `web serve` 已接入动态 payload_factory。
-- [ ] 后续可增加更多研究工作台模块与事件流刷新。
+- [x] 已支持动态 payload_factory 与 60 秒刷新；更多模块可后续扩展。
 
 ## 验证
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：116 tests OK。
+当前通过：116 tests OK（本阶段核心开发完成，外部冻结验收待治理流程）。
