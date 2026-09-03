@@ -47,7 +47,8 @@
 - `formal_v2.generate_v2_formal_report()`：协议 v2 正式验收前的可审计报告入口；
 - `margin_utilization_summary()`：批量持仓保证金占用率统计；
 - `formal` CLI：输出双因子 v2 正式验收前报告；
-- `run_daily_position_mark()`：单笔持仓逐日盯市与保证金占用估算。
+- `run_daily_position_mark()`：单笔持仓逐日盯市与保证金占用估算；
+- `portfolio_daily_margin()`：多笔持仓逐日合并盯市与保证金监控。
 
 ## [0.1.0-rc1] - 2026-09-02
 

@@ -193,5 +193,47 @@ class PositionPnlTests(unittest.TestCase):
         self.assertGreater(result["rows"][1]["margin_estimate"], 0)
 
 
+    def test_portfolio_daily_margin_aggregates(self) -> None:
+        from goratio.margin import portfolio_daily_margin
+
+        records = [
+            ContractRecord(
+                date=date(2024, 1, 2), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2000.0,
+                volume=100, open_interest=50,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 3), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2010.0,
+                volume=80, open_interest=40,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 3), instrument="gold", symbol="GC",
+                contract_month="2024-04", close=2020.0,
+                volume=200, open_interest=300,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 4), instrument="gold", symbol="GC",
+                contract_month="2024-04", close=2030.0,
+                volume=250, open_interest=400,
+            ),
+        ]
+        positions = [
+            {
+                "instrument": "gold",
+                "entry_date": date(2024, 1, 2),
+                "exit_date": date(2024, 1, 4),
+                "direction": 1,
+                "lots": 1,
+            }
+        ]
+
+        summary = portfolio_daily_margin(records, positions)
+
+        self.assertEqual(summary["day_count"], 3)
+        self.assertGreater(summary["final_equity"], 100000.0)
+        self.assertGreater(summary["daily_rows"][0]["total_margin"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()

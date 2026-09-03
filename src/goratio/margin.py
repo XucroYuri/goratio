@@ -299,3 +299,62 @@ def run_daily_position_mark(
         "rows": rows,
         "note": "逐日盯市研究模拟，不构成交易建议",
     }
+
+
+def portfolio_daily_margin(
+    records,
+    positions,
+    *,
+    initial_capital: float = 100000.0,
+) -> dict:
+    """合并多笔持仓的逐日盯市与保证金占用。
+
+    positions: [{"instrument": "gold"/"oil", "entry_date": date,
+                 "exit_date": date, "direction": 1/-1, "lots": int}]
+    """
+    from collections import defaultdict
+    from datetime import date
+
+    daily_map = defaultdict(lambda: {"margin": 0.0, "pnl": 0.0, "count": 0})
+    rows_by_position = []
+    for position in positions:
+        result = run_daily_position_mark(
+            records,
+            instrument=position["instrument"],
+            entry_date=position["entry_date"],
+            exit_date=position["exit_date"],
+            direction=position["direction"],
+            lots=position["lots"],
+        )
+        rows_by_position.append(result)
+        for row in result["rows"]:
+            d = row["date"]
+            daily_map[d]["margin"] += row["margin_estimate"]
+            daily_map[d]["pnl"] += row["cumulative_pnl"]
+            daily_map[d]["count"] += 1
+    daily_rows = []
+    peak = initial_capital
+    max_drawdown = 0.0
+    for d in sorted(daily_map):
+        record = daily_map[d]
+        equity = initial_capital + record["pnl"]
+        peak = max(peak, equity)
+        max_drawdown = max(max_drawdown, peak - equity)
+        daily_rows.append(
+            {
+                "date": d,
+                "total_margin": record["margin"],
+                "total_pnl": record["pnl"],
+                "equity": equity,
+                "position_count": record["count"],
+            }
+        )
+    return {
+        "initial_capital": initial_capital,
+        "day_count": len(daily_rows),
+        "daily_rows": daily_rows,
+        "final_equity": daily_rows[-1]["equity"] if daily_rows else initial_capital,
+        "max_drawdown": max_drawdown,
+        "rows_by_position": rows_by_position,
+        "note": "多笔持仓逐日合并盯市研究模拟，不构成交易建议",
+    }
