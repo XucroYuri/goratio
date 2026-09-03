@@ -25,6 +25,7 @@ from .contracts import (
 )
 from .dataset import DataQualityError, prepare_market_data
 from .episode_study import run_episode_evidence_bundle
+from .formal_v2 import generate_v2_formal_report
 from .evidence_gates import run_v2_evidence_bundle
 from .episodes import (
     build_forward_episodes,
@@ -164,6 +165,18 @@ def build_parser() -> argparse.ArgumentParser:
         default=0.0,
         help="每笔 episode 附加的换月价差成本（基点）",
     )
+
+    formal = commands.add_parser("formal", help="输出双因子 v2 正式验收前报告")
+    formal.add_argument("--period", choices=("3y", "5y", "10y"), default="10y")
+    formal.add_argument(
+        "--source",
+        choices=("cn_public", "yahoo_futures"),
+        default="cn_public",
+    )
+    formal.add_argument("--json", action="store_true", dest="as_json")
+    formal.add_argument("--timeout", type=float, default=10.0)
+    formal.add_argument("--cost-bps", type=float, default=20.0)
+    formal.add_argument("--roll-cost-bps", type=float, default=0.0)
 
     evidence = commands.add_parser("evidence", help="运行双因子 v2 成本后 episode 组合证据门槛")
     evidence.add_argument("--period", choices=("3y", "5y", "10y"), default="10y")
@@ -703,6 +716,30 @@ def main(
                         f"  {event['date']} {event['symbol']} close={event['close']} "
                         f"in_window={event['in_analysis_window']}\n"
                     )
+            return 0
+        if args.command == "formal":
+            report = generate_v2_formal_report(
+                prepared,
+                cost_bps=args.cost_bps,
+                roll_cost_bps=args.roll_cost_bps,
+            )
+            if args.as_json:
+                stdout.write(
+                    json.dumps(
+                        report,
+                        ensure_ascii=False,
+                        indent=2,
+                        sort_keys=True,
+                        allow_nan=False,
+                    )
+                    + "\n"
+                )
+            else:
+                stdout.write(
+                    f"协议：{report['protocol']}；总体状态：{report['overall_status']}\n"
+                )
+                for horizon, status in report["horizon_status"].items():
+                    stdout.write(f"  {horizon} 交易日：{status}\n")
             return 0
         if args.command == "evidence":
             report = run_v2_evidence_bundle(
