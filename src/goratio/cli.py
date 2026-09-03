@@ -28,7 +28,7 @@ from .contracts import (
 from .margin import summarize_batch_portfolio
 from .dataset import DataQualityError, prepare_market_data
 from .episode_study import run_episode_evidence_bundle
-from .formal_v2 import generate_v2_formal_report
+from .formal_v2 import generate_v2_formal_report, generate_v2_overview
 from .evidence_gates import run_v2_evidence_bundle
 from .episodes import (
     build_forward_episodes,
@@ -187,6 +187,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=0.0,
         help="每笔 episode 附加的换月价差成本（基点）",
     )
+
+    overview = commands.add_parser("overview", help="输出 v2 研究总览")
+    overview.add_argument("--period", choices=("3y", "5y", "10y"), default="10y")
+    overview.add_argument("--source", choices=("cn_public", "yahoo_futures"), default="cn_public")
+    overview.add_argument("--json", action="store_true", dest="as_json")
+    overview.add_argument("--timeout", type=float, default=10.0)
 
     formal = commands.add_parser("formal", help="输出双因子 v2 正式验收前报告")
     formal.add_argument("--period", choices=("3y", "5y", "10y"), default="10y")
@@ -842,6 +848,25 @@ def main(
                         f"  {event['date']} {event['symbol']} close={event['close']} "
                         f"in_window={event['in_analysis_window']}\n"
                     )
+            return 0
+        if args.command == "overview":
+            report = generate_v2_overview(prepared)
+            if args.as_json:
+                stdout.write(
+                    json.dumps(
+                        report,
+                        ensure_ascii=False,
+                        indent=2,
+                        sort_keys=True,
+                        allow_nan=False,
+                    )
+                    + "\n"
+                )
+            else:
+                ov = report["overview"]
+                stdout.write(
+                    f"协议：{report['protocol']}；总体状态：{ov['overall_status']}\n"
+                )
             return 0
         if args.command == "formal":
             report = generate_v2_formal_report(

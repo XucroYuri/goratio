@@ -62,7 +62,8 @@
 - `contracts net-backtest` CLI：从合约 CSV 运行 T+1 open/settle 净收益回测；
 - `contracts roll-cost` CLI：输出合约 CSV 换月 gap 成本统计；
 - `attach_stress_note()`：将负油价压力事件状态附加到回测报告；
-- `generate_v2_overview()`：生成 v2 因子状态 + formal 报告总览。
+- `generate_v2_overview()`：生成 v2 因子状态 + formal 报告总览；
+- `overview` CLI：输出 v2 研究总览。
 
 ## [0.1.0-rc1] - 2026-09-02
 
