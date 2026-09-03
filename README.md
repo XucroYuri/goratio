@@ -210,6 +210,7 @@ goratio evidence --period 10y --cost-bps 20 --roll-cost-bps 5 --json
 ```bash
 goratio formal --period 10y --cost-bps 20 --roll-cost-bps 5 --json
 goratio overview --period 10y --json
+goratio governance --json
 ```
 
 只读 Web 工作台以本地 HTML 导出形式开始落地：
