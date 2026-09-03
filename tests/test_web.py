@@ -75,5 +75,42 @@ class WebServerTests(unittest.TestCase):
             server.server_close()
 
 
+    def test_readonly_server_supports_payload_factory(self) -> None:
+        from goratio.web import make_dashboard_server
+
+        calls = {"n": 0}
+
+        def factory():
+            calls["n"] += 1
+            return {
+                "source_id": "cn_public",
+                "ratio": {"as_of": "2024-01-02", "ratio": float(calls["n"])},
+                "factor": {"available": False},
+                "evidence": {"horizons": {}},
+                "risk_flags": [],
+            }
+
+        server = make_dashboard_server(payload_factory=factory, port=0)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            port = server.server_address[1]
+            with urllib.request.urlopen(
+                f"http://127.0.0.1:{port}/", timeout=3
+            ) as response:
+                body1 = response.read().decode("utf-8")
+            with urllib.request.urlopen(
+                f"http://127.0.0.1:{port}/", timeout=3
+            ) as response:
+                body2 = response.read().decode("utf-8")
+            self.assertIn("1.0", body1)
+            self.assertIn("2.0", body2)
+            self.assertGreaterEqual(calls["n"], 2)
+        finally:
+            server.shutdown()
+            thread.join(timeout=3)
+            server.server_close()
+
+
 if __name__ == "__main__":
     unittest.main()

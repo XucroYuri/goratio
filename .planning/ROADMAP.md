@@ -71,10 +71,11 @@
 - [x] `web serve` 可启动只读本地 HTTP 服务；仍不提供交易指令。
 - [x] Web 工作台已加入近期金油比 SVG 走势图。
 - [x] `web serve` 页面已支持 60 秒自动刷新。
+- [x] `web serve` 支持 `payload_factory`，每次请求重新生成页面。
 - [ ] 后续可增加更多研究工作台模块与事件流刷新。
 
 ## 验证
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：107 tests OK。
+当前通过：108 tests OK。
