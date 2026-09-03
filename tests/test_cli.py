@@ -397,5 +397,32 @@ class CLITests(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertEqual(payload["simulation"]["episode_count"], 0)
 
+    def test_contracts_net_backtest_runs_from_contract_csv(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            csv_path = Path(directory) / "contracts.csv"
+            csv_path.write_text(
+                "date,instrument,symbol,contract_month,close,volume,open_interest\n"
+                "2024-01-02,gold,GC,2024-02,2000,100,50\n"
+                "2024-01-03,gold,GC,2024-02,2010,80,40\n"
+                "2024-01-02,oil,CL,2024-03,75,1000,500\n"
+                "2024-01-03,oil,CL,2024-03,80,900,400\n",
+                encoding="utf-8",
+            )
+            output = io.StringIO()
+            exit_code = main(
+                [
+                    "contracts", "net-backtest", "--csv", str(csv_path),
+                    "--horizon", "63", "--json",
+                ],
+                today=lambda: date(2024, 1, 4),
+                stdout=output,
+                stderr=io.StringIO(),
+            )
+
+        payload = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["execution"], "open")
+        self.assertEqual(payload["episode_count"], 0)
+
 if __name__ == "__main__":
     unittest.main()
