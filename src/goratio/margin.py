@@ -358,3 +358,34 @@ def portfolio_daily_margin(
         "rows_by_position": rows_by_position,
         "note": "多笔持仓逐日合并盯市研究模拟，不构成交易建议",
     }
+
+
+def check_portfolio_constraints(
+    portfolio_summary: dict,
+    *,
+    max_margin_utilization: float = 0.3,
+    max_drawdown: float = 0.2,
+) -> dict:
+    """组合级风控门控：保证金占用率与回撤上限。"""
+    daily_rows = portfolio_summary.get("daily_rows", [])
+    if daily_rows:
+        max_margin = max(
+            row["total_margin"] / portfolio_summary.get("initial_capital", 1)
+            for row in daily_rows
+        )
+    else:
+        max_margin = None
+    drawdown = portfolio_summary.get("max_drawdown")
+    return {
+        "max_margin_utilization": max_margin,
+        "max_margin_utilization_threshold": max_margin_utilization,
+        "margin_utilization_passed": bool(
+            max_margin is not None and max_margin <= max_margin_utilization
+        ),
+        "max_drawdown": drawdown,
+        "max_drawdown_threshold": max_drawdown,
+        "drawdown_passed": bool(
+            drawdown is not None and drawdown <= max_drawdown
+        ),
+        "note": "组合风控门控研究，不构成投资建议",
+    }

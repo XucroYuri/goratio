@@ -235,5 +235,22 @@ class PositionPnlTests(unittest.TestCase):
         self.assertGreater(summary["daily_rows"][0]["total_margin"], 0)
 
 
+    def test_check_portfolio_constraints(self) -> None:
+        from goratio.margin import check_portfolio_constraints
+
+        summary = {
+            "initial_capital": 100000.0,
+            "daily_rows": [
+                {"total_margin": 10000.0, "total_pnl": 0.0, "equity": 100000.0, "position_count": 1},
+            ],
+            "max_drawdown": 0.05,
+        }
+
+        gates = check_portfolio_constraints(summary)
+
+        self.assertTrue(gates["margin_utilization_passed"])
+        self.assertTrue(gates["drawdown_passed"])
+
+
 if __name__ == "__main__":
     unittest.main()
