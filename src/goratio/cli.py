@@ -27,6 +27,7 @@ from .contracts import (
 )
 from .margin import summarize_batch_portfolio
 from .dataset import DataQualityError, prepare_market_data
+from .doctor import run_doctor
 from .episode_study import run_episode_evidence_bundle
 from .formal_v2 import generate_v2_formal_report, generate_v2_overview
 from .evidence_gates import run_v2_evidence_bundle
@@ -144,6 +145,9 @@ def build_parser() -> argparse.ArgumentParser:
     contracts_rollcost = contracts_subcommands.add_parser("roll-cost", help="输出合约 CSV 的换月 gap 成本统计")
     contracts_rollcost.add_argument("--csv", type=str, required=True)
     contracts_rollcost.add_argument("--json", action="store_true", dest="as_json")
+
+    doctor = commands.add_parser("doctor", help="运行本地模块健康检查")
+    doctor.add_argument("--json", action="store_true", dest="as_json")
 
     plugin = commands.add_parser("plugin", help="查看静态插件白名单")
     plugin_subcommands = plugin.add_subparsers(dest="plugin_command", required=True)
@@ -564,6 +568,14 @@ def main(
                         f"  {event['date']} {event['symbol']} "
                         f"{event['old_contract']} -> {event['new_contract']}\n"
                     )
+            return 0
+        if args.command == "doctor":
+            report = run_doctor()
+            if args.as_json:
+                stdout.write(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
+            else:
+                for check in report["checks"]:
+                    stdout.write(f"  {check['module']}: {check['status']}\n")
             return 0
         if args.command == "plugin":
             plugins = list_plugins(
