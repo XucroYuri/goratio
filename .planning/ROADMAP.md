@@ -61,6 +61,7 @@
 - [x] `contracts net-backtest` CLI 已接入 T+1 open/settle 净收益回测。
 - [ ] 将 T+1 open/settle 执行缺口作为默认成交模型接入主 CLI backtest。
 - [x] `stress` 命令可诊断负油价/零价事件是否落入研究窗口并标注 v2 处理要求。
+- [x] `attach_stress_note()` 可将负油价事件附加到回测报告。
 - [ ] 负油价/危机尾部事件进一步接入真实回测压力场景与 protocol v2。
 - [x] 人民币披露层支持可选 `--usdcny` 换算（未自动接入数据源，仍需调用方提供汇率）。
 - [x] `evidence_gates`：协议 v2 组合门槛已落地（episode OOS、98.33% 家族区间、成本后正收益、回撤门控）。
@@ -84,4 +85,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：111 tests OK。
+当前通过：112 tests OK。
