@@ -57,6 +57,7 @@
 - [x] episode 摘要已输出扣减 T+1 open gap 的多头真实换月净收益。
 - [x] episode 摘要已输出 open 与 settle 两种 T+1 净收益口径。
 - [x] `run_contract_episode_net_backtest()` 已支持 T+1 open/settle 净收益回测摘要。
+- [x] `contracts net-backtest` CLI 已接入 T+1 open/settle 净收益回测。
 - [ ] 将 T+1 open/settle 执行缺口作为默认成交模型接入主 CLI backtest。
 - [x] `stress` 命令可诊断负油价/零价事件是否落入研究窗口并标注 v2 处理要求。
 - [ ] 负油价/危机尾部事件进一步接入真实回测压力场景与 protocol v2。
@@ -82,4 +83,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：109 tests OK。
+当前通过：110 tests OK。
