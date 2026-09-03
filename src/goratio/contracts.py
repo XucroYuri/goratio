@@ -529,3 +529,55 @@ def t1_open_settle_gap(
             else None
         ),
     }
+
+
+def run_contract_episode_net_backtest(
+    records,
+    episodes,
+    *,
+    cost_bps: float = 20.0,
+    execution: str = "open",
+) -> dict:
+    """基于合约 CSV 的 episode 净收益回测摘要（T+1 open/settle 默认成交模型）。
+
+    execution="open" 使用扣减 T+1 open gap 后的真实换月净收益；
+    execution="settle" 使用扣减 T+1 settle gap 后的真实换月净收益。
+    """
+    if execution not in ("open", "settle"):
+        raise ValueError("execution 必须是 open 或 settle")
+    summary = contract_episode_return_summary(records, episodes)
+    key = (
+        "long_net_roll_aware_return"
+        if execution == "open"
+        else "settle_net_roll_aware_return"
+    )
+    net_rows = []
+    for row in summary["rows"]:
+        net_return = row.get(key)
+        if net_return is None:
+            continue
+        net_after_cost = net_return - cost_bps / 10000.0
+        net_rows.append(
+            {
+                "entry_date": row["entry_date"],
+                "outcome_date": row["outcome_date"],
+                "execution_net_return": net_return,
+                "net_after_cost_return": net_after_cost,
+            }
+        )
+    returns = [row["net_after_cost_return"] for row in net_rows]
+    return {
+        "method": "contract_episode_net_backtest",
+        "execution": execution,
+        "cost_bps": cost_bps,
+        "episode_count": len(net_rows),
+        "mean_net_after_cost_return": (
+            sum(returns) / len(returns) if returns else None
+        ),
+        "positive_rate": (
+            sum(value > 0 for value in returns) / len(returns)
+            if returns
+            else None
+        ),
+        "rows": net_rows,
+    }
