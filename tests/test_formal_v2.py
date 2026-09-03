@@ -2,7 +2,11 @@ import unittest
 from datetime import date, datetime, timezone
 
 from goratio.dataset import prepare_market_data
-from goratio.formal_v2 import generate_v2_formal_report, generate_v2_overview
+from goratio.formal_v2 import (
+    freeze_checklist,
+    generate_v2_formal_report,
+    generate_v2_overview,
+)
 from goratio.providers import RawMarketData, SINA_METADATA
 
 
@@ -55,6 +59,14 @@ class FormalV2Tests(unittest.TestCase):
         self.assertIn("overview", overview)
         self.assertIn("formal", overview)
         self.assertEqual(overview["overview"]["overall_status"], "insufficient_data")
+
+
+    def test_freeze_checklist_has_external_review_pending(self) -> None:
+        checklist = freeze_checklist()
+
+        self.assertTrue(checklist["pre_registered"])
+        self.assertFalse(checklist["external_review"])
+        self.assertFalse(checklist["date_stamp_signed"])
 
 
 if __name__ == "__main__":
