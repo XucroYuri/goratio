@@ -389,3 +389,15 @@ def check_portfolio_constraints(
         ),
         "note": "组合风控门控研究，不构成投资建议",
     }
+
+
+def financing_cost_estimate(
+    margin_estimate: float,
+    holding_days: int,
+    *,
+    annual_rate: float = 0.03,
+) -> float:
+    """估算保证金占用的年度化资金成本。"""
+    if margin_estimate < 0 or holding_days < 0:
+        raise ValueError("保证金与持有天数不能为负")
+    return margin_estimate * annual_rate * holding_days / 365.0

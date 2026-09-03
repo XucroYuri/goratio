@@ -252,5 +252,13 @@ class PositionPnlTests(unittest.TestCase):
         self.assertTrue(gates["drawdown_passed"])
 
 
+    def test_financing_cost_estimate(self) -> None:
+        from goratio.margin import financing_cost_estimate
+
+        cost = financing_cost_estimate(10000.0, 365, annual_rate=0.05)
+
+        self.assertAlmostEqual(cost, 500.0)
+
+
 if __name__ == "__main__":
     unittest.main()
