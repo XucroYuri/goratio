@@ -124,15 +124,28 @@ td, th {{ border: 1px solid #ccc; padding: 6px 8px; text-align: left; }}
 """
 
 
-def make_dashboard_server(payload: Mapping, host: str = "127.0.0.1", port: int = 0):
-    """创建只读本地 HTTP 服务（ThreadingHTTPServer）。"""
+def make_dashboard_server(
+    payload: Mapping = None,
+    *,
+    payload_factory=None,
+    host: str = "127.0.0.1",
+    port: int = 0,
+):
+    """创建只读本地 HTTP 服务（ThreadingHTTPServer）。
+
+    如果传入 payload_factory，则每次请求重新生成 HTML，支持真正的自动刷新。
+    """
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-    html = render_dashboard_html(payload, refresh_seconds=60)
+    def current_html():
+        if payload_factory is not None:
+            return render_dashboard_html(payload_factory(), refresh_seconds=60)
+        return render_dashboard_html(payload, refresh_seconds=60)
 
     class DashboardHandler(BaseHTTPRequestHandler):
         def do_GET(self):
             if self.path in ("/", "/index.html"):
+                html = current_html()
                 self.send_response(200)
                 self.send_header("Content-Type", "text/html; charset=utf-8")
                 self.send_header("Content-Length", str(len(html.encode("utf-8"))))
@@ -156,9 +169,20 @@ def make_dashboard_server(payload: Mapping, host: str = "127.0.0.1", port: int =
     return server
 
 
-def serve_dashboard(payload: Mapping, host: str = "127.0.0.1", port: int = 8765) -> None:
+def serve_dashboard(
+    payload: Mapping = None,
+    *,
+    payload_factory=None,
+    host: str = "127.0.0.1",
+    port: int = 8765,
+) -> None:
     """运行只读本地 Web 工作台。"""
-    server = make_dashboard_server(payload, host=host, port=port)
+    server = make_dashboard_server(
+        payload,
+        payload_factory=payload_factory,
+        host=host,
+        port=port,
+    )
     try:
         server.serve_forever()
     finally:
