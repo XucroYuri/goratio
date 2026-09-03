@@ -214,3 +214,88 @@ def margin_utilization_summary(sim: dict, *, initial_capital: float = 100000.0) 
         "max_margin_utilization": max(utilizations) if utilizations else None,
         "note": "逐笔近似保证金占用，不包含重叠持仓的逐日合并监控",
     }
+
+
+def run_daily_position_mark(
+    records,
+    *,
+    instrument: str,
+    entry_date,
+    exit_date,
+    direction: int = 1,
+    lots: int = 1,
+    margin_rate: Optional[float] = None,
+) -> dict:
+    """运行单笔持仓的逐日盯市（mark-to-market）与保证金占用估算。
+
+    换月时先按旧合约价格实现盈亏，再按新合约价格重开仓。返回每日行与摘要。
+    """
+    if direction not in (-1, 1):
+        raise ValueError("direction 必须是 1 或 -1")
+    if lots <= 0:
+        raise ValueError("lots 必须为正整数")
+    from datetime import date
+    from .contracts import build_contract_series
+
+    report = build_contract_series(records)
+    if instrument not in report["series"]:
+        raise ValueError(f"合约链缺少 instrument={instrument}")
+    calendar = report["series"][instrument]["calendar"]
+    daily = [
+        point
+        for point in calendar
+        if entry_date <= date.fromisoformat(point["date"]) <= exit_date
+    ]
+    if not daily:
+        return {"rows": [], "final_pnl": None}
+    multiplier = 100 if instrument == "gold" else 1000
+    rate = margin_rate or DEFAULT_MARGIN_RATES.get(
+        "GC" if instrument == "gold" else "CL", 0.1
+    )
+    roll_map = {
+        event["date"]: event
+        for event in report["roll_events"]
+        if event["instrument"] == instrument
+    }
+    active_contract = daily[0]["contract_month"]
+    entry_price = daily[0]["close"]
+    realized = 0.0
+    rows = []
+    for point in daily:
+        current_date = point["date"]
+        close = point["close"]
+        if point["contract_month"] != active_contract:
+            roll = roll_map.get(current_date)
+            old_close = roll["old_close"] if roll else None
+            if old_close is None:
+                prev_index = len(rows) - 1
+                old_close = rows[prev_index]["close"] if rows else entry_price
+            realized += (old_close - entry_price) * multiplier * lots * direction
+            active_contract = point["contract_month"]
+            entry_price = close
+        unrealized = (close - entry_price) * multiplier * lots * direction
+        cumulative_pnl = realized + unrealized
+        rows.append(
+            {
+                "date": current_date,
+                "contract_month": point["contract_month"],
+                "close": close,
+                "realized_pnl": realized,
+                "unrealized_pnl": unrealized,
+                "cumulative_pnl": cumulative_pnl,
+                "margin_estimate": close * multiplier * lots * rate,
+            }
+        )
+    final_pnl = rows[-1]["cumulative_pnl"] if rows else None
+    return {
+        "instrument": instrument,
+        "direction": direction,
+        "lots": lots,
+        "entry_date": entry_date.isoformat(),
+        "exit_date": exit_date.isoformat(),
+        "row_count": len(rows),
+        "final_pnl": final_pnl,
+        "max_abs_pnl": max((abs(row["cumulative_pnl"]) for row in rows), default=None),
+        "rows": rows,
+        "note": "逐日盯市研究模拟，不构成交易建议",
+    }
