@@ -87,6 +87,8 @@ def freeze_checklist() -> dict:
         "formal_report_cli": True,
         "overview_cli": True,
         "external_review": False,
+        "review_url": None,
+        "reviewed_by": None,
         "date_stamp_signed": False,
         "note": "代码/报告入口已具备；外部评审与签名日期戳需在项目治理流程中完成",
     }

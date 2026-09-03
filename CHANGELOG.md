@@ -69,7 +69,8 @@
 - `freeze_checklist()`：返回正式冻结验收所需清单状态；
 - `generate_v2_formal_report()` 输出中附带 freeze_checklist；
 - `generate_v2_overview()` 输出 as_of；
-- Web 工作台显示外部评审完成状态。
+- Web 工作台显示外部评审完成状态；
+- `freeze_checklist()` 增加 review_url/reviewed_by 占位字段。
 
 ## [0.1.0-rc1] - 2026-09-02
 

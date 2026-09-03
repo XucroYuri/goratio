@@ -69,6 +69,7 @@
 - [x] `formal_v2.generate_v2_formal_report()` 已作为正式验收报告入口。
 - [x] `generate_v2_formal_report()` 已带 `generated_at` 时间戳。
 - [x] `freeze_checklist()` 已列出正式冻结验收所需状态。
+- [x] 冻结清单包含 review_url/reviewed_by 占位。
 - [x] formal 报告输出中已附带 freeze_checklist。
 - [ ] 完成外部评审/日期戳后的正式冻结验收流程。
 - [x] `formal` CLI 可输出正式验收前 JSON 报告。
