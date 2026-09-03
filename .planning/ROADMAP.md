@@ -40,7 +40,8 @@
 - [x] `run_position_simulation()` 已支持对一组 episode 批量运行持仓估算。
 - [x] `batch_equity_summary()` 已提供简单资金曲线摘要。
 - [x] `margin_utilization_summary()` 已提供批量持仓保证金占用率统计。
-- [ ] 在完整组合持仓/资金引擎中接入逐日保证金监控。
+- [x] `run_daily_position_mark()` 已提供单笔持仓逐日盯市与保证金估算。
+- [ ] 在完整组合持仓/资金引擎中合并多笔持仓逐日保证金监控。
 - [x] T+1 close 执行近似已加入 `backtest --t1-close`（仍非 open/settle，真实缺口待合约数据接入）。
 - [x] `summarize_roll_costs()` 已提供合约级可量化换月 gap 成本统计。
 - [x] 真实换月 gap 成本可作为 `--roll-cost-bps` 附加到 `backtest`/`evidence`。
@@ -70,4 +71,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：101 tests OK。
+当前通过：102 tests OK。
