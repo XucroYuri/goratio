@@ -55,6 +55,7 @@ def generate_v2_formal_report(
         "evidence": bundle,
         "horizon_status": statuses,
         "overall_status": overall,
+        "freeze_checklist": freeze_checklist(),
         "note": "正式冻结验收仍需外部评审/日期戳；本模块是可复现报告入口",
     }
 
