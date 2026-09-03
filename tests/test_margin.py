@@ -262,5 +262,47 @@ class PositionPnlTests(unittest.TestCase):
         self.assertAlmostEqual(cost, 500.0)
 
 
+    def test_summarize_batch_portfolio(self) -> None:
+        from goratio.episodes import Episode
+        from goratio.margin import summarize_batch_portfolio
+
+        records = [
+            ContractRecord(
+                date=date(2024, 1, 2), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2000.0,
+                volume=100, open_interest=50,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 3), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2010.0,
+                volume=80, open_interest=40,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 3), instrument="gold", symbol="GC",
+                contract_month="2024-04", close=2020.0,
+                volume=200, open_interest=300,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 4), instrument="gold", symbol="GC",
+                contract_month="2024-04", close=2030.0,
+                volume=250, open_interest=400,
+            ),
+        ]
+        episode = Episode(
+            date=date(2024, 1, 2),
+            outcome_date=date(2024, 1, 4),
+            forward_return=0.0,
+            percentile=0.1,
+            history_count=300,
+            low_state_days=3,
+        )
+
+        summary = summarize_batch_portfolio(records, [episode])
+
+        self.assertIn("simulation", summary)
+        self.assertIn("equity", summary)
+        self.assertIn("margin_utilization", summary)
+
+
 if __name__ == "__main__":
     unittest.main()
