@@ -43,6 +43,7 @@
 - [x] `run_daily_position_mark()` 已提供单笔持仓逐日盯市与保证金估算。
 - [x] `portfolio_daily_margin()` 已支持多笔持仓逐日合并盯市与保证金监控。
 - [x] `check_portfolio_constraints()` 已提供组合级保证金占用与回撤门控。
+- [x] `financing_cost_estimate()` 已支持保证金资金成本估算。
 - [ ] 在完整组合资金引擎中接入融资/资金费率与更多组合约束。
 - [x] T+1 close 执行近似已加入 `backtest --t1-close`（仍非 open/settle，真实缺口待合约数据接入）。
 - [x] `summarize_roll_costs()` 已提供合约级可量化换月 gap 成本统计。
@@ -73,4 +74,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：104 tests OK。
+当前通过：105 tests OK。
