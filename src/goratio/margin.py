@@ -411,3 +411,32 @@ def financing_cost_estimate(
     if margin_estimate < 0 or holding_days < 0:
         raise ValueError("保证金与持有天数不能为负")
     return margin_estimate * annual_rate * holding_days / 365.0
+
+
+def summarize_batch_portfolio(
+    records,
+    episodes,
+    *,
+    instrument: str = "gold",
+    direction: int = 1,
+    lots: int = 1,
+    initial_capital: float = 100000.0,
+) -> dict:
+    """批量 episode → 持仓模拟 → 资金曲线/保证金占用的高层汇总。"""
+    simulation = run_position_simulation(
+        records,
+        episodes,
+        instrument=instrument,
+        direction=direction,
+        lots=lots,
+    )
+    equity = batch_equity_summary(simulation, initial_capital=initial_capital)
+    utilization = margin_utilization_summary(
+        simulation, initial_capital=initial_capital
+    )
+    return {
+        "simulation": simulation,
+        "equity": equity,
+        "margin_utilization": utilization,
+        "note": "高层研究汇总，不构成交易建议",
+    }
