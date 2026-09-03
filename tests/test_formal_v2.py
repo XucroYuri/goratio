@@ -68,6 +68,8 @@ class FormalV2Tests(unittest.TestCase):
         self.assertTrue(checklist["pre_registered"])
         self.assertTrue(checklist["overview_cli"])
         self.assertFalse(checklist["external_review"])
+        self.assertIn("review_url", checklist)
+        self.assertIn("reviewed_by", checklist)
         self.assertFalse(checklist["date_stamp_signed"])
 
 
