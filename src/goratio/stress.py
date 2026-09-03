@@ -42,3 +42,18 @@ def tail_stress_report(raw: RawMarketData, data: PreparedMarketData) -> dict:
         "events": in_window,
         "note": "负油价/零价事件不会被 log ratio 正常处理；必须显式保留并在 v2/真实回测中作为压力输入",
     }
+
+
+def attach_stress_note(raw: RawMarketData, backtest_report: dict) -> dict:
+    """把负油价压力事件状态附加到 backtest 报告中。"""
+    events = scan_non_positive_events(raw)
+    report = dict(backtest_report)
+    report["stress_events"] = [
+        event.__dict__ for event in events
+    ]
+    report["stress_note"] = (
+        "负油价/零价事件未进入正价格回测样本；如需压力测试请使用合约级原始数据单列场景"
+        if events
+        else "未发现非正价格事件"
+    )
+    return report

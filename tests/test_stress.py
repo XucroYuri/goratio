@@ -65,5 +65,15 @@ class StressTests(unittest.TestCase):
         self.assertEqual(report["events"], [])
 
 
+    def test_attach_stress_note_to_backtest(self) -> None:
+        from goratio.stress import attach_stress_note
+
+        raw = _raw_with_negative_oil()
+        report = attach_stress_note(raw, {"trade_count": 0})
+
+        self.assertEqual(report["stress_events"][0]["date"], "2020-04-20")
+        self.assertIn("未进入正价格回测样本", report["stress_note"])
+
+
 if __name__ == "__main__":
     unittest.main()
