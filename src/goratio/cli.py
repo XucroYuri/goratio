@@ -29,7 +29,11 @@ from .margin import summarize_batch_portfolio
 from .dataset import DataQualityError, prepare_market_data
 from .doctor import run_doctor
 from .episode_study import run_episode_evidence_bundle
-from .formal_v2 import generate_v2_formal_report, generate_v2_overview
+from .formal_v2 import (
+    freeze_checklist,
+    generate_v2_formal_report,
+    generate_v2_overview,
+)
 from .evidence_gates import run_v2_evidence_bundle
 from .episodes import (
     build_forward_episodes,
@@ -191,6 +195,9 @@ def build_parser() -> argparse.ArgumentParser:
         default=0.0,
         help="每笔 episode 附加的换月价差成本（基点）",
     )
+
+    governance = commands.add_parser("governance", help="输出正式冻结验收治理清单")
+    governance.add_argument("--json", action="store_true", dest="as_json")
 
     overview = commands.add_parser("overview", help="输出 v2 研究总览")
     overview.add_argument("--period", choices=("3y", "5y", "10y"), default="10y")
@@ -728,6 +735,16 @@ def main(
                     stdout.write(
                         f"协议：{PROTOCOL_V2_SPEC['id']}；当前状态不可用：{snapshot['reason']}\n"
                     )
+            return 0
+        if args.command == "governance":
+            report = freeze_checklist()
+            if args.as_json:
+                stdout.write(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
+            else:
+                stdout.write(
+                    f"协议：{report['protocol_id']}；外部评审：{report['external_review']}；"
+                    f"日期戳签名：{report['date_stamp_signed']}\n"
+                )
             return 0
         if args.command == "update" and args.import_csv:
             raw = import_standard_csv(
