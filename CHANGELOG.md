@@ -64,7 +64,8 @@
 - `attach_stress_note()`：将负油价压力事件状态附加到回测报告；
 - `generate_v2_overview()`：生成 v2 因子状态 + formal 报告总览；
 - `overview` CLI：输出 v2 研究总览；
-- Web 工作台显示 v2 总体状态并携带 overview payload。
+- Web 工作台显示 v2 总体状态并携带 overview payload；
+- `doctor` CLI 与本地模块健康检查。
 
 ## [0.1.0-rc1] - 2026-09-02
 
