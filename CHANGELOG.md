@@ -57,7 +57,8 @@
 - `web serve` 支持 `payload_factory`，每次请求重新生成页面，实现真正自动刷新；
 - CLI `web serve` 已接入动态 payload_factory，每次请求重新加载本地数据；
 - `generate_v2_formal_report()` 增加 `generated_at` 时间戳；
-- `contract_episode_return_summary()` 增加 settle 净真实换月收益。
+- `contract_episode_return_summary()` 增加 settle 净真实换月收益；
+- `run_contract_episode_net_backtest()`：基于 T+1 open/settle 净收益的合约 episode 回测摘要。
 
 ## [0.1.0-rc1] - 2026-09-02
 

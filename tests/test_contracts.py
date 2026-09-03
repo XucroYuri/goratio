@@ -308,5 +308,50 @@ class RollAdjustedSeriesTests(unittest.TestCase):
         self.assertAlmostEqual(gap["settle_gap"], 2018.0 / 2000.0 - 1)
 
 
+    def test_run_contract_episode_net_backtest(self) -> None:
+        from goratio.contracts import run_contract_episode_net_backtest
+        from goratio.episodes import Episode
+
+        records = [
+            ContractRecord(
+                date=date(2024, 1, 2), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2000.0,
+                volume=100, open_interest=50,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 3), instrument="gold", symbol="GC",
+                contract_month="2024-02", close=2010.0,
+                volume=80, open_interest=40,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 3), instrument="gold", symbol="GC",
+                contract_month="2024-04", close=2020.0,
+                volume=200, open_interest=300,
+                open=2015.0, settle=2018.0,
+            ),
+            ContractRecord(
+                date=date(2024, 1, 4), instrument="gold", symbol="GC",
+                contract_month="2024-04", close=2030.0,
+                volume=250, open_interest=400,
+            ),
+        ]
+        episode = Episode(
+            date=date(2024, 1, 2),
+            outcome_date=date(2024, 1, 4),
+            forward_return=0.0,
+            percentile=0.1,
+            history_count=300,
+            low_state_days=3,
+        )
+
+        result = run_contract_episode_net_backtest(
+            records, [episode], execution="open", cost_bps=10.0
+        )
+
+        self.assertEqual(result["execution"], "open")
+        self.assertEqual(result["episode_count"], 1)
+        self.assertIsNotNone(result["mean_net_after_cost_return"])
+
+
 if __name__ == "__main__":
     unittest.main()
