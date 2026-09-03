@@ -133,5 +133,22 @@ class PositionPnlTests(unittest.TestCase):
         self.assertEqual(summary["valid_pnl_count"], 3)
 
 
+    def test_margin_utilization_summary(self) -> None:
+        from goratio.margin import margin_utilization_summary
+
+        sim = {
+            "rows": [
+                {"margin_estimate": 1000.0},
+                {"margin_estimate": 2000.0},
+            ]
+        }
+
+        summary = margin_utilization_summary(sim, initial_capital=10000.0)
+
+        self.assertEqual(summary["valid_margin_count"], 2)
+        self.assertAlmostEqual(summary["mean_margin_utilization"], 0.15)
+        self.assertAlmostEqual(summary["max_margin_utilization"], 0.2)
+
+
 if __name__ == "__main__":
     unittest.main()
