@@ -66,7 +66,8 @@
 - `overview` CLI：输出 v2 研究总览；
 - Web 工作台显示 v2 总体状态并携带 overview payload；
 - `doctor` CLI 与本地模块健康检查；
-- `freeze_checklist()`：返回正式冻结验收所需清单状态。
+- `freeze_checklist()`：返回正式冻结验收所需清单状态；
+- `generate_v2_formal_report()` 输出中附带 freeze_checklist。
 
 ## [0.1.0-rc1] - 2026-09-02
 
