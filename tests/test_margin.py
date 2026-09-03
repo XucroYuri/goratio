@@ -70,6 +70,8 @@ class PositionPnlTests(unittest.TestCase):
             result["pnl_estimate"], 2000 * 100 * expected_return
         )
         self.assertGreater(result["margin_estimate"], 0)
+        self.assertGreater(result["holding_days"], 0)
+        self.assertIsNotNone(result["net_pnl_estimate"])
 
 
     def test_run_position_simulation_batch(self) -> None:

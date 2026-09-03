@@ -50,7 +50,8 @@
 - `run_daily_position_mark()`：单笔持仓逐日盯市与保证金占用估算；
 - `portfolio_daily_margin()`：多笔持仓逐日合并盯市与保证金监控；
 - `check_portfolio_constraints()`：组合级保证金占用与回撤风控门控；
-- `financing_cost_estimate()`：保证金资金成本估算。
+- `financing_cost_estimate()`：保证金资金成本估算；
+- `position_pnl_estimate()` 增加资金成本与净 P&L 估算。
 
 ## [0.1.0-rc1] - 2026-09-02
 
