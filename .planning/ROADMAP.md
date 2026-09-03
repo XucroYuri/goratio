@@ -62,6 +62,7 @@
 - [x] `evidence_gates`：协议 v2 组合门槛已落地（episode OOS、98.33% 家族区间、成本后正收益、回撤门控）。
 - [x] `evidence` CLI 已接入 `evidence_gates`。
 - [x] `formal_v2.generate_v2_formal_report()` 已作为正式验收报告入口。
+- [x] `generate_v2_formal_report()` 已带 `generated_at` 时间戳。
 - [ ] 完成外部评审/日期戳后的正式冻结验收流程。
 - [x] `formal` CLI 可输出正式验收前 JSON 报告。
 - [ ] 输出双因子 v2 的 episode 级正式样本外成本后检验报告文档。

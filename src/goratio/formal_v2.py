@@ -4,6 +4,8 @@
 组合结论汇总为可审计的正式报告入口。
 """
 
+from datetime import datetime, timezone
+
 from .backtest import MIN_TRADE_COUNT
 from .dataset import PreparedMarketData
 from .episode_study import MIN_OUT_OF_SAMPLE_EPISODES
@@ -42,6 +44,7 @@ def generate_v2_formal_report(
     return {
         "protocol": PROTOCOL_V2_ID,
         "report_type": "formal_preregistered_report_draft",
+        "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "parameters": {
             "cost_bps": cost_bps,
             "roll_cost_bps": roll_cost_bps,
