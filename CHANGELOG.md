@@ -55,7 +55,8 @@
 - `summarize_batch_portfolio()`：批量 episode → 持仓模拟 → 资金/保证金高层汇总；
 - `contracts portfolio` CLI：从合约 CSV 直接运行批量持仓高层汇总；
 - `web serve` 支持 `payload_factory`，每次请求重新生成页面，实现真正自动刷新；
-- CLI `web serve` 已接入动态 payload_factory，每次请求重新加载本地数据。
+- CLI `web serve` 已接入动态 payload_factory，每次请求重新加载本地数据；
+- `generate_v2_formal_report()` 增加 `generated_at` 时间戳。
 
 ## [0.1.0-rc1] - 2026-09-02
 
