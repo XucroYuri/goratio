@@ -164,3 +164,32 @@ def run_position_simulation(
         "mean_pnl_estimate": sum(pnls) / len(pnls) if pnls else None,
         "rows": rows,
     }
+
+
+def batch_equity_summary(sim: dict, *, initial_capital: float = 100000.0) -> dict:
+    """基于批量持仓模拟结果生成简单资金曲线摘要。
+
+    该摘要按行顺序累加 P&L，适用于非重叠 episode 的初步资金曲线研究。
+    """
+    if initial_capital <= 0:
+        raise ValueError("initial_capital 必须为正")
+    equity = initial_capital
+    peak = initial_capital
+    max_drawdown = 0.0
+    row_count = 0
+    for row in sim.get("rows", []):
+        pnl = row.get("pnl_estimate")
+        if pnl is None:
+            continue
+        equity += pnl
+        peak = max(peak, equity)
+        max_drawdown = max(max_drawdown, peak - equity)
+        row_count += 1
+    return {
+        "initial_capital": initial_capital,
+        "final_equity": equity,
+        "total_pnl": equity - initial_capital,
+        "max_drawdown": max_drawdown,
+        "valid_pnl_count": row_count,
+        "note": "简单逐笔资金曲线摘要，不包含重叠持仓、融资与提现",
+    }
