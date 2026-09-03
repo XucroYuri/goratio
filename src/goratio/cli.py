@@ -22,6 +22,7 @@ from .contracts import (
     build_contract_series,
     contract_csv_to_raw_market_data,
     read_contract_csv,
+    run_contract_episode_net_backtest,
 )
 from .margin import summarize_batch_portfolio
 from .dataset import DataQualityError, prepare_market_data
@@ -131,6 +132,13 @@ def build_parser() -> argparse.ArgumentParser:
     contracts_portfolio.add_argument("--lots", type=int, default=1)
     contracts_portfolio.add_argument("--initial-capital", type=float, default=100000.0)
     contracts_portfolio.add_argument("--json", action="store_true", dest="as_json")
+
+    contracts_net = contracts_subcommands.add_parser("net-backtest", help="用合约 CSV 运行 T+1 open/settle 净收益 episode 回测")
+    contracts_net.add_argument("--csv", type=str, required=True)
+    contracts_net.add_argument("--horizon", type=int, choices=(63,126,252), default=126)
+    contracts_net.add_argument("--cost-bps", type=float, default=20.0)
+    contracts_net.add_argument("--execution", choices=("open","settle"), default="open")
+    contracts_net.add_argument("--json", action="store_true", dest="as_json")
 
     plugin = commands.add_parser("plugin", help="查看静态插件白名单")
     plugin_subcommands = plugin.add_subparsers(dest="plugin_command", required=True)
@@ -452,6 +460,44 @@ def main(
                 stdout.write(
                     f"合约 CSV 批量组合：episode {report['simulation']['episode_count']}；"
                     f"最终权益 {_format_number(report['equity']['final_equity'], 2)}\n"
+                )
+            return 0
+        if args.command == "contracts" and args.contracts_command == "net-backtest":
+            records = read_contract_csv(args.csv)
+            raw = contract_csv_to_raw_market_data(args.csv)
+            prepared = prepare_market_data(
+                raw,
+                period="10y",
+                completed_before=completed_before,
+                provenance="user_contract_csv",
+                cache_stale=False,
+            )
+            episodes = build_forward_episodes(
+                prepared.history.points,
+                prepared.selected.points,
+                horizon=args.horizon,
+            )
+            report = run_contract_episode_net_backtest(
+                records,
+                episodes,
+                cost_bps=args.cost_bps,
+                execution=args.execution,
+            )
+            if args.as_json:
+                stdout.write(
+                    json.dumps(
+                        report,
+                        ensure_ascii=False,
+                        indent=2,
+                        sort_keys=True,
+                        allow_nan=False,
+                    )
+                    + "\n"
+                )
+            else:
+                stdout.write(
+                    f"合约 CSV T+1 {args.execution} 净收益回测：episode {report['episode_count']}；"
+                    f"成本后均值 {_format_number(report['mean_net_after_cost_return'])}\n"
                 )
             return 0
         if args.command == "contracts":
