@@ -54,6 +54,7 @@ goratio now --period 10y --json
 goratio analyze --period 5y
 goratio analyze --period 10y --json
 goratio update --source cn_public
+goratio doctor --json
 ```
 
 Yahoo 仅在命令中明确选择时访问：
