@@ -57,3 +57,20 @@ def generate_v2_formal_report(
         "overall_status": overall,
         "note": "正式冻结验收仍需外部评审/日期戳；本模块是可复现报告入口",
     }
+
+
+def generate_v2_overview(data: PreparedMarketData) -> dict:
+    """生成 v2 研究总览：当前因子状态 + 三期限 formal 报告摘要。"""
+    from .protocol_v2 import factor_snapshot
+    formal = generate_v2_formal_report(data)
+    factor = factor_snapshot(data)
+    return {
+        "protocol": PROTOCOL_V2_ID,
+        "overview": {
+            "factor_available": factor.get("available", False),
+            "factor_state": factor.get("research_state"),
+            "overall_status": formal["overall_status"],
+            "horizon_status": formal["horizon_status"],
+        },
+        "formal": formal,
+    }
