@@ -629,6 +629,7 @@ def main(
                     ],
                     "factor": factor_snapshot(prepared),
                     "evidence": run_v2_evidence_bundle(prepared),
+                    "overview": generate_v2_overview(prepared),
                     "risk_flags": (
                         ["insufficient_history"] if not prepared.evidence_eligible else []
                     ),

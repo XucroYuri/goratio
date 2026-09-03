@@ -46,6 +46,14 @@ def render_dashboard_html(
                 + e(str(trend.get("gold_252d_momentum")))
                 + "</td></tr>"
             )
+    overview = payload.get("overview", {})
+    if overview.get("overview"):
+        rows.insert(
+            0,
+            "<tr><td>v2 总体状态</td><td>"
+            + e(str(overview["overview"].get("overall_status", "未知")))
+            + "</td></tr>",
+        )
     if not rows:
         rows.append("<tr><td>因子状态</td><td>不可用</td></tr>")
 
