@@ -68,7 +68,8 @@
 - `doctor` CLI 与本地模块健康检查；
 - `freeze_checklist()`：返回正式冻结验收所需清单状态；
 - `generate_v2_formal_report()` 输出中附带 freeze_checklist；
-- `generate_v2_overview()` 输出 as_of。
+- `generate_v2_overview()` 输出 as_of；
+- Web 工作台显示外部评审完成状态。
 
 ## [0.1.0-rc1] - 2026-09-02
 
