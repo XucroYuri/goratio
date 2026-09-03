@@ -70,6 +70,7 @@
 - [x] `generate_v2_formal_report()` 已带 `generated_at` 时间戳。
 - [x] `freeze_checklist()` 已列出正式冻结验收所需状态。
 - [x] 冻结清单包含 review_url/reviewed_by 占位。
+- [x] `governance` CLI 可输出治理清单。
 - [x] formal 报告输出中已附带 freeze_checklist。
 - [ ] 完成外部评审/日期戳后的正式冻结验收流程。
 - [x] `formal` CLI 可输出正式验收前 JSON 报告。
@@ -94,4 +95,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：116 tests OK（本阶段核心开发完成，外部冻结验收待治理流程）。
+当前通过：117 tests OK（本阶段核心开发完成，外部冻结验收待治理流程）。
