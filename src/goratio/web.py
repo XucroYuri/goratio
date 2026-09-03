@@ -54,6 +54,14 @@ def render_dashboard_html(
             + e(str(overview["overview"].get("overall_status", "未知")))
             + "</td></tr>",
         )
+        freeze = overview.get("formal", {}).get("freeze_checklist", {})
+        if freeze:
+            rows.insert(
+                1,
+                "<tr><td>外部评审完成</td><td>"
+                + e(str(freeze.get("external_review", "未知")))
+                + "</td></tr>",
+            )
     if not rows:
         rows.append("<tr><td>因子状态</td><td>不可用</td></tr>")
 
