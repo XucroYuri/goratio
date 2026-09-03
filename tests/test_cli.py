@@ -445,5 +445,21 @@ class CLITests(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertEqual(payload["roll_event_count"], 1)
 
+    def test_overview_command_returns_v2_overview(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = io.StringIO()
+            exit_code = main(
+                ["overview", "--source", "cn_public", "--period", "5y", "--json"],
+                loader=self.make_loader(Path(directory)),
+                today=lambda: date(2024, 1, 4),
+                stdout=output,
+                stderr=io.StringIO(),
+            )
+
+        payload = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["protocol"], "goratio-2a-v1")
+        self.assertEqual(payload["overview"]["overall_status"], "insufficient_data")
+
 if __name__ == "__main__":
     unittest.main()
