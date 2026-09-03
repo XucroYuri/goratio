@@ -431,6 +431,13 @@ def contract_episode_return_summary(records, episodes) -> dict:
                     if roll_return is not None and t1_open_gap is not None
                     else None
                 ),
+                "settle_net_roll_aware_return": (
+                    roll_return - t1_gap.get("settle_gap")
+                    if roll_return is not None
+                    and t1_gap is not None
+                    and t1_gap.get("settle_gap") is not None
+                    else None
+                ),
             }
         )
     valid = [
@@ -448,6 +455,11 @@ def contract_episode_return_summary(records, episodes) -> dict:
         for row in rows
         if row["long_net_roll_aware_return"] is not None
     ]
+    valid_settle_net = [
+        row["settle_net_roll_aware_return"]
+        for row in rows
+        if row["settle_net_roll_aware_return"] is not None
+    ]
     return {
         "episode_count": len(rows),
         "valid_roll_aware_count": len(valid),
@@ -461,6 +473,12 @@ def contract_episode_return_summary(records, episodes) -> dict:
         "valid_long_net_roll_aware_count": len(valid_net),
         "mean_long_net_roll_aware_return": (
             sum(valid_net) / len(valid_net) if valid_net else None
+        ),
+        "valid_settle_net_roll_aware_count": len(valid_settle_net),
+        "mean_settle_net_roll_aware_return": (
+            sum(valid_settle_net) / len(valid_settle_net)
+            if valid_settle_net
+            else None
         ),
         "rows": rows,
     }
