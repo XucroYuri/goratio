@@ -36,6 +36,7 @@ class FormalV2Tests(unittest.TestCase):
 
         self.assertEqual(report["protocol"], "goratio-2a-v1")
         self.assertEqual(report["overall_status"], "insufficient_data")
+        self.assertIn("generated_at", report)
         self.assertEqual(len(report["horizon_status"]), 3)
 
 
