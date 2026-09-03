@@ -48,7 +48,8 @@
 - `margin_utilization_summary()`：批量持仓保证金占用率统计；
 - `formal` CLI：输出双因子 v2 正式验收前报告；
 - `run_daily_position_mark()`：单笔持仓逐日盯市与保证金占用估算；
-- `portfolio_daily_margin()`：多笔持仓逐日合并盯市与保证金监控。
+- `portfolio_daily_margin()`：多笔持仓逐日合并盯市与保证金监控；
+- `check_portfolio_constraints()`：组合级保证金占用与回撤风控门控。
 
 ## [0.1.0-rc1] - 2026-09-02
 
