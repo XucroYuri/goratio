@@ -23,6 +23,7 @@ from .contracts import (
     contract_csv_to_raw_market_data,
     read_contract_csv,
     run_contract_episode_net_backtest,
+    summarize_roll_costs,
 )
 from .margin import summarize_batch_portfolio
 from .dataset import DataQualityError, prepare_market_data
@@ -139,6 +140,10 @@ def build_parser() -> argparse.ArgumentParser:
     contracts_net.add_argument("--cost-bps", type=float, default=20.0)
     contracts_net.add_argument("--execution", choices=("open","settle"), default="open")
     contracts_net.add_argument("--json", action="store_true", dest="as_json")
+
+    contracts_rollcost = contracts_subcommands.add_parser("roll-cost", help="输出合约 CSV 的换月 gap 成本统计")
+    contracts_rollcost.add_argument("--csv", type=str, required=True)
+    contracts_rollcost.add_argument("--json", action="store_true", dest="as_json")
 
     plugin = commands.add_parser("plugin", help="查看静态插件白名单")
     plugin_subcommands = plugin.add_subparsers(dest="plugin_command", required=True)
@@ -498,6 +503,26 @@ def main(
                 stdout.write(
                     f"合约 CSV T+1 {args.execution} 净收益回测：episode {report['episode_count']}；"
                     f"成本后均值 {_format_number(report['mean_net_after_cost_return'])}\n"
+                )
+            return 0
+        if args.command == "contracts" and args.contracts_command == "roll-cost":
+            records = read_contract_csv(args.csv)
+            report = summarize_roll_costs(records)
+            if args.as_json:
+                stdout.write(
+                    json.dumps(
+                        report,
+                        ensure_ascii=False,
+                        indent=2,
+                        sort_keys=True,
+                        allow_nan=False,
+                    )
+                    + "\n"
+                )
+            else:
+                stdout.write(
+                    f"换月事件数：{report['roll_event_count']}；可量化 gap 数："
+                    f"{report['measurable_roll_gap_count']}\n"
                 )
             return 0
         if args.command == "contracts":

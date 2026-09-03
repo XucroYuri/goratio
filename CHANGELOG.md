@@ -59,7 +59,8 @@
 - `generate_v2_formal_report()` 增加 `generated_at` 时间戳；
 - `contract_episode_return_summary()` 增加 settle 净真实换月收益；
 - `run_contract_episode_net_backtest()`：基于 T+1 open/settle 净收益的合约 episode 回测摘要；
-- `contracts net-backtest` CLI：从合约 CSV 运行 T+1 open/settle 净收益回测。
+- `contracts net-backtest` CLI：从合约 CSV 运行 T+1 open/settle 净收益回测；
+- `contracts roll-cost` CLI：输出合约 CSV 换月 gap 成本统计。
 
 ## [0.1.0-rc1] - 2026-09-02
 
