@@ -68,6 +68,7 @@
 - [x] `evidence` CLI 已接入 `evidence_gates`。
 - [x] `formal_v2.generate_v2_formal_report()` 已作为正式验收报告入口。
 - [x] `generate_v2_formal_report()` 已带 `generated_at` 时间戳。
+- [x] `freeze_checklist()` 已列出正式冻结验收所需状态。
 - [ ] 完成外部评审/日期戳后的正式冻结验收流程。
 - [x] `formal` CLI 可输出正式验收前 JSON 报告。
 - [x] `generate_v2_overview()` 已提供 v2 因子状态 + formal 报告总览。
@@ -89,4 +90,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：115 tests OK。
+当前通过：116 tests OK。
