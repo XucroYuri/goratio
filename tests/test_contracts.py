@@ -275,6 +275,9 @@ class RollAdjustedSeriesTests(unittest.TestCase):
         self.assertIsNotNone(
             summary["rows"][0]["long_net_roll_aware_return"]
         )
+        self.assertIsNotNone(
+            summary["rows"][0]["settle_net_roll_aware_return"]
+        )
 
 
     def test_t1_open_settle_gap_uses_optional_fields(self) -> None:
