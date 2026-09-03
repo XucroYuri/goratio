@@ -525,39 +525,46 @@ def main(
             mcp_serve(loader, stdin=stdin, stdout=stdout)
             return 0
         if args.command == "web":
-            loaded = loader.load(args.source, timeout=args.timeout)
-            prepared = prepare_market_data(
-                loaded.raw,
-                period=args.period,
-                completed_before=completed_before,
-                provenance=loaded.provenance,
-                cache_stale=loaded.cache_stale,
-            )
-            current = summarize_current(
-                prepared.history.points,
-                prepared.selected.points,
-            )
-            payload = {
-                "schema_version": "goratio-web-v1",
-                "source_id": prepared.source.source_id,
-                "as_of": current["as_of"],
-                "ratio": current,
-                "series": [
-                    {
-                        "date": point.date.isoformat(),
-                        "ratio": point.ratio,
-                    }
-                    for point in prepared.selected.points[-252:]
-                ],
-                "factor": factor_snapshot(prepared),
-                "evidence": run_v2_evidence_bundle(prepared),
-                "risk_flags": (
-                    ["insufficient_history"] if not prepared.evidence_eligible else []
-                ),
-            }
+            def make_web_payload():
+                loaded = loader.load(args.source, timeout=args.timeout)
+                prepared = prepare_market_data(
+                    loaded.raw,
+                    period=args.period,
+                    completed_before=today(),
+                    provenance=loaded.provenance,
+                    cache_stale=loaded.cache_stale,
+                )
+                current = summarize_current(
+                    prepared.history.points,
+                    prepared.selected.points,
+                )
+                return {
+                    "schema_version": "goratio-web-v1",
+                    "source_id": prepared.source.source_id,
+                    "as_of": current["as_of"],
+                    "ratio": current,
+                    "series": [
+                        {
+                            "date": point.date.isoformat(),
+                            "ratio": point.ratio,
+                        }
+                        for point in prepared.selected.points[-252:]
+                    ],
+                    "factor": factor_snapshot(prepared),
+                    "evidence": run_v2_evidence_bundle(prepared),
+                    "risk_flags": (
+                        ["insufficient_history"] if not prepared.evidence_eligible else []
+                    ),
+                }
+
             if args.web_command == "serve":
-                serve_dashboard(payload, host=args.host, port=args.port)
+                serve_dashboard(
+                    payload_factory=make_web_payload,
+                    host=args.host,
+                    port=args.port,
+                )
                 return 0
+            payload = make_web_payload()
             html = render_dashboard_html(payload)
             if args.output:
                 Path(args.output).write_text(html, encoding="utf-8")
