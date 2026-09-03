@@ -50,6 +50,7 @@
 - [ ] 在完整组合资金引擎中接入融资/资金费率与更多组合约束。
 - [x] T+1 close 执行近似已加入 `backtest --t1-close`（仍非 open/settle，真实缺口待合约数据接入）。
 - [x] `summarize_roll_costs()` 已提供合约级可量化换月 gap 成本统计。
+- [x] `contracts roll-cost` CLI 已输出换月成本统计。
 - [x] 真实换月 gap 成本可作为 `--roll-cost-bps` 附加到 `backtest`/`evidence`。
 - [x] 合约级模型已支持可选 `open`/`settle` 字段。
 - [x] `t1_open_settle_gap()` 已支持基于 open/settle 字段计算 T+1 执行缺口。
@@ -83,4 +84,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：110 tests OK。
+当前通过：111 tests OK。
