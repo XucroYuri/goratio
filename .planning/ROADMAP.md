@@ -70,6 +70,7 @@
 - [x] `generate_v2_formal_report()` 已带 `generated_at` 时间戳。
 - [ ] 完成外部评审/日期戳后的正式冻结验收流程。
 - [x] `formal` CLI 可输出正式验收前 JSON 报告。
+- [x] `generate_v2_overview()` 已提供 v2 因子状态 + formal 报告总览。
 - [ ] 输出双因子 v2 的 episode 级正式样本外成本后检验报告文档。
 - [ ] 从诊断回测升级为真实合约级回测：换月、保证金、市场冲击、T+1 open/settle。
 - [ ] 正式预注册成本后回测门槛与家族检验（已具备模块入口）。
@@ -85,4 +86,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：112 tests OK。
+当前通过：113 tests OK。
