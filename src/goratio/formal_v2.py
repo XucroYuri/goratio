@@ -68,6 +68,7 @@ def generate_v2_overview(data: PreparedMarketData) -> dict:
     return {
         "protocol": PROTOCOL_V2_ID,
         "overview": {
+            "as_of": factor.get("as_of"),
             "factor_available": factor.get("available", False),
             "factor_state": factor.get("research_state"),
             "overall_status": formal["overall_status"],

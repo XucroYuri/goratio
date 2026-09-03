@@ -74,6 +74,7 @@
 - [x] `formal` CLI 可输出正式验收前 JSON 报告。
 - [x] `generate_v2_overview()` 已提供 v2 因子状态 + formal 报告总览。
 - [x] `overview` CLI 已输出 v2 研究总览。
+- [x] overview 输出包含 as_of。
 - [x] Web 工作台已显示 v2 总体状态。
 - [x] `doctor` CLI 提供本地模块健康检查。
 - [ ] 输出双因子 v2 的 episode 级正式样本外成本后检验报告文档。
