@@ -52,7 +52,8 @@
 - `check_portfolio_constraints()`：组合级保证金占用与回撤风控门控；
 - `financing_cost_estimate()`：保证金资金成本估算；
 - `position_pnl_estimate()` 增加资金成本与净 P&L 估算；
-- `summarize_batch_portfolio()`：批量 episode → 持仓模拟 → 资金/保证金高层汇总。
+- `summarize_batch_portfolio()`：批量 episode → 持仓模拟 → 资金/保证金高层汇总；
+- `contracts portfolio` CLI：从合约 CSV 直接运行批量持仓高层汇总。
 
 ## [0.1.0-rc1] - 2026-09-02
 

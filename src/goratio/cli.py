@@ -23,6 +23,7 @@ from .contracts import (
     contract_csv_to_raw_market_data,
     read_contract_csv,
 )
+from .margin import summarize_batch_portfolio
 from .dataset import DataQualityError, prepare_market_data
 from .episode_study import run_episode_evidence_bundle
 from .formal_v2 import generate_v2_formal_report
@@ -122,6 +123,14 @@ def build_parser() -> argparse.ArgumentParser:
     contracts_backtest.add_argument("--cost-bps", type=float, default=20.0)
     contracts_backtest.add_argument("--roll-cost-bps", type=float, default=0.0)
     contracts_backtest.add_argument("--json", action="store_true", dest="as_json")
+
+    contracts_portfolio = contracts_subcommands.add_parser("portfolio", help="用合约 CSV 运行批量持仓高层汇总")
+    contracts_portfolio.add_argument("--csv", type=str, required=True)
+    contracts_portfolio.add_argument("--horizon", type=int, choices=(63,126,252), default=126)
+    contracts_portfolio.add_argument("--direction", type=int, default=1)
+    contracts_portfolio.add_argument("--lots", type=int, default=1)
+    contracts_portfolio.add_argument("--initial-capital", type=float, default=100000.0)
+    contracts_portfolio.add_argument("--json", action="store_true", dest="as_json")
 
     plugin = commands.add_parser("plugin", help="查看静态插件白名单")
     plugin_subcommands = plugin.add_subparsers(dest="plugin_command", required=True)
@@ -404,6 +413,45 @@ def main(
                     f"换月无跳空调整={bool(args.roll_adjusted)}\n"
                     f"交易数：{report['trade_count']}；平均净收益："
                     f"{_format_number(report['metrics']['mean_net_return'])}\n"
+                )
+            return 0
+        if args.command == "contracts" and args.contracts_command == "portfolio":
+            records = read_contract_csv(args.csv)
+            raw = contract_csv_to_raw_market_data(args.csv)
+            prepared = prepare_market_data(
+                raw,
+                period="10y",
+                completed_before=completed_before,
+                provenance="user_contract_csv",
+                cache_stale=False,
+            )
+            episodes = build_forward_episodes(
+                prepared.history.points,
+                prepared.selected.points,
+                horizon=args.horizon,
+            )
+            report = summarize_batch_portfolio(
+                records,
+                episodes,
+                direction=args.direction,
+                lots=args.lots,
+                initial_capital=args.initial_capital,
+            )
+            if args.as_json:
+                stdout.write(
+                    json.dumps(
+                        report,
+                        ensure_ascii=False,
+                        indent=2,
+                        sort_keys=True,
+                        allow_nan=False,
+                    )
+                    + "\n"
+                )
+            else:
+                stdout.write(
+                    f"合约 CSV 批量组合：episode {report['simulation']['episode_count']}；"
+                    f"最终权益 {_format_number(report['equity']['final_equity'], 2)}\n"
                 )
             return 0
         if args.command == "contracts":

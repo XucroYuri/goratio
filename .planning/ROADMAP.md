@@ -46,6 +46,7 @@
 - [x] `financing_cost_estimate()` 已支持保证金资金成本估算。
 - [x] `position_pnl_estimate()` 已输出扣减资金成本后的净 P&L。
 - [x] `summarize_batch_portfolio()` 已提供批量持仓高层汇总。
+- [x] `contracts portfolio` CLI 已接入批量持仓高层汇总。
 - [ ] 在完整组合资金引擎中接入融资/资金费率与更多组合约束。
 - [x] T+1 close 执行近似已加入 `backtest --t1-close`（仍非 open/settle，真实缺口待合约数据接入）。
 - [x] `summarize_roll_costs()` 已提供合约级可量化换月 gap 成本统计。
@@ -76,4 +77,4 @@
 
 当前测试：`PYTHONPATH=src python3 -m unittest discover -s tests -v`
 
-当前通过：106 tests OK。
+当前通过：107 tests OK。
