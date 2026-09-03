@@ -201,6 +201,8 @@ goratio backtest --period 10y --horizon 126 --cost-bps 20 --t1-close --roll-cost
 goratio evidence --period 10y --cost-bps 20 --roll-cost-bps 5 --json
 ```
 
+`formal_v2.generate_v2_formal_report()` 可作为协议 v2 正式验收前的可审计报告入口，汇总三期限 status 与总体状态。
+
 只读 Web 工作台以本地 HTML 导出形式开始落地：
 
 ```bash
